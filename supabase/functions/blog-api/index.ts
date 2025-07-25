@@ -134,11 +134,12 @@ serve(async (req) => {
     // Generate slug from title
     const slug = createSlug(payload.title);
 
-    // Check if slug already exists
+    // Check if slug already exists for this site
     const { data: existingPost } = await supabase
       .from('blog_posts')
       .select('id')
       .eq('slug', slug)
+      .eq('site_id', 'audiencesynergy')
       .single();
 
     if (existingPost) {
@@ -157,6 +158,7 @@ serve(async (req) => {
         .from('blog_categories')
         .select('id')
         .eq('name', payload.category)
+        .eq('site_id', 'audiencesynergy')
         .single();
 
       if (existingCategory) {
@@ -168,6 +170,7 @@ serve(async (req) => {
           .insert({
             name: payload.category,
             slug: createSlug(payload.category),
+            site_id: 'audiencesynergy',
           })
           .select('id')
           .single();
@@ -192,6 +195,7 @@ serve(async (req) => {
         .from('blog_authors')
         .select('id')
         .eq('name', payload.author)
+        .eq('site_id', 'audiencesynergy')
         .single();
 
       if (existingAuthor) {
@@ -203,6 +207,7 @@ serve(async (req) => {
           .insert({
             name: payload.author,
             email: `${createSlug(payload.author)}@audiencesynergy.com`,
+            site_id: 'audiencesynergy',
           })
           .select('id')
           .single();
@@ -231,6 +236,7 @@ serve(async (req) => {
       featured_image_url: payload.featured_image_url || null,
       published: payload.published ?? false,
       published_at: payload.published ? new Date().toISOString() : null,
+      site_id: 'audiencesynergy',
     };
 
     const { data: newPost, error: postError } = await supabase

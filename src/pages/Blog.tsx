@@ -52,6 +52,7 @@ const Blog = () => {
           blog_authors (name)
         `)
         .eq('published', true)
+        .eq('site_id', 'audiencesynergy')
         .order('published_at', { ascending: false });
 
       if (selectedCategory) {
@@ -74,6 +75,7 @@ const Blog = () => {
       const { data, error } = await supabase
         .from('blog_categories')
         .select('id, name, slug')
+        .eq('site_id', 'audiencesynergy')
         .order('name');
 
       if (error) throw error;

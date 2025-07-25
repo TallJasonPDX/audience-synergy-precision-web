@@ -50,6 +50,7 @@ const BlogPost = () => {
         `)
         .eq('slug', slug)
         .eq('published', true)
+        .eq('site_id', 'audiencesynergy')
         .single();
 
       if (error) {
