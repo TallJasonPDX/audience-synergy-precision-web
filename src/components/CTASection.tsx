@@ -81,9 +81,9 @@ const CTASection = () => {
               <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-transform">
                 <MessageCircle className="w-8 h-8 text-accent" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Start Free Trial</h3>
+              <h3 className="text-xl font-semibold mb-2">Try Self-Service</h3>
               <p className="text-muted-foreground mb-4">
-                Experience our self-service platform with no commitment
+                Get our audiences integrated into your DSP or Meta account
               </p>
               <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/5">
                 Try Free

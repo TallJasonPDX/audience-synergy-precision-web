@@ -26,22 +26,22 @@ const serviceOptions = [
     ]
   },
   {
-    title: "Self-Service Programmatic",
+    title: "Self-Service Audience Integration",
     icon: Target,
-    description: "Direct access to our platform for experienced programmatic advertisers",
+    description: "We deliver our verified audiences directly to your existing DSP or Meta Ad account",
     features: [
-      "Real-time Bidding Access",
-      "Audience Targeting Interface",
-      "Campaign Management Dashboard",
-      "Performance Analytics",
-      "Automated Optimization Tools",
-      "API Integration Available"
+      "Direct audience integration to your DSP",
+      "Meta Business Manager onboarding",
+      "Complete campaign control & flexibility",
+      "Your own budget management",
+      "Use your existing creative assets",
+      "Employment ad compliance for Meta"
     ],
     benefits: [
-      "Complete campaign control",
-      "Lower management fees",
-      "Instant campaign adjustments",
-      "Direct platform access"
+      "Maintain full campaign control",
+      "Use your preferred DSP or Meta",
+      "No platform fees or markups",
+      "Compliant Meta employment advertising"
     ]
   }
 ];

@@ -118,14 +118,14 @@ const ServiceOptions = () => {
                     <Cog className="w-6 h-6 text-secondary" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-display font-bold">Self-Service Platform</h3>
-                    <p className="text-muted-foreground">Complete control and flexibility</p>
+                    <h3 className="text-2xl font-display font-bold">Self-Service Integration</h3>
+                    <p className="text-muted-foreground">Audiences delivered to your DSP or Meta account</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm text-muted-foreground">Starting at</div>
-                  <div className="text-2xl font-bold text-secondary">$2,500</div>
-                  <div className="text-xs text-muted-foreground">/month minimum</div>
+                  <div className="text-sm text-muted-foreground">Perfect for</div>
+                  <div className="text-lg font-bold text-secondary">In-house Teams</div>
+                  <div className="text-xs text-muted-foreground">with existing DSPs</div>
                 </div>
               </div>
 
@@ -136,8 +136,8 @@ const ServiceOptions = () => {
                     <div className="w-2 h-2 bg-secondary rounded-full" />
                   </div>
                   <div>
-                    <div className="font-semibold">Instant Audience Access</div>
-                    <div className="text-sm text-muted-foreground">Pre-built and custom physician segments available immediately</div>
+                    <div className="font-semibold">Direct DSP Integration</div>
+                    <div className="text-sm text-muted-foreground">We deliver audiences directly to your preferred DSP platform</div>
                   </div>
                 </div>
                 
@@ -146,8 +146,8 @@ const ServiceOptions = () => {
                     <div className="w-2 h-2 bg-secondary rounded-full" />
                   </div>
                   <div>
-                    <div className="font-semibold">Real-Time Dashboard</div>
-                    <div className="text-sm text-muted-foreground">Live campaign performance metrics and optimization tools</div>
+                    <div className="font-semibold">Meta Business Manager Setup</div>
+                    <div className="text-sm text-muted-foreground">Direct audience onboarding to your Meta ad account</div>
                   </div>
                 </div>
                 
@@ -156,8 +156,8 @@ const ServiceOptions = () => {
                     <div className="w-2 h-2 bg-secondary rounded-full" />
                   </div>
                   <div>
-                    <div className="font-semibold">API Integration</div>
-                    <div className="text-sm text-muted-foreground">Seamless connection to your existing marketing stack</div>
+                    <div className="font-semibold">Employment Ad Compliance</div>
+                    <div className="text-sm text-muted-foreground">Compliant solution for Meta employment advertising restrictions</div>
                   </div>
                 </div>
                 
@@ -166,8 +166,8 @@ const ServiceOptions = () => {
                     <div className="w-2 h-2 bg-secondary rounded-full" />
                   </div>
                   <div>
-                    <div className="font-semibold">Flexible Pricing</div>
-                    <div className="text-sm text-muted-foreground">Pay-as-you-scale with transparent, predictable costs</div>
+                    <div className="font-semibold">Complete Campaign Control</div>
+                    <div className="text-sm text-muted-foreground">Maintain control over budget, creative, bidding, and optimization</div>
                   </div>
                 </div>
                 
@@ -176,8 +176,8 @@ const ServiceOptions = () => {
                     <div className="w-2 h-2 bg-secondary rounded-full" />
                   </div>
                   <div>
-                    <div className="font-semibold">Support & Training</div>
-                    <div className="text-sm text-muted-foreground">Comprehensive onboarding and ongoing technical support</div>
+                    <div className="font-semibold">No Platform Fees</div>
+                    <div className="text-sm text-muted-foreground">Use your existing tools and budgets without additional markups</div>
                   </div>
                 </div>
               </div>
@@ -186,13 +186,13 @@ const ServiceOptions = () => {
               <div className="bg-secondary/5 rounded-xl p-4 mb-6">
                 <div className="text-sm font-semibold text-secondary mb-2">Perfect for:</div>
                 <div className="text-sm text-muted-foreground">
-                  Marketing agencies, recruitment firms, and in-house teams who prefer 
-                  direct control over their campaigns and audience targeting.
+                  Marketing agencies, recruitment firms, and in-house teams who have existing DSP relationships 
+                  or run campaigns through Meta Business Manager and want precision healthcare audiences.
                 </div>
               </div>
 
               <Button variant="outline" className="w-full border-secondary text-secondary hover:bg-secondary/5">
-                Start Free Trial
+                Get Audience Integration
                 <Zap className="w-4 h-4 ml-2" />
               </Button>
             </div>

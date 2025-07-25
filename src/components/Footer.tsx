@@ -7,7 +7,7 @@ const Footer = () => {
       title: "Solutions",
       links: [
         { label: "Managed Service", href: "#managed" },
-        { label: "Self-Service Platform", href: "#self-service" },
+        { label: "Self-Service Integration", href: "#self-service" },
         { label: "API Access", href: "#api" },
         { label: "Custom Audiences", href: "#custom" },
       ]

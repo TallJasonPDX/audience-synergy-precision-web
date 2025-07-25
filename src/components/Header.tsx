@@ -44,7 +44,7 @@ const Header = () => {
       href: "/services",
       dropdown: [
         { label: "Managed Service", href: "/services#managed" },
-        { label: "Self-Service", href: "/services#self-service" },
+        { label: "Self-Service Integration", href: "/services#self-service" },
         { label: "Multi-Channel", href: "/services#channels" }
       ]
     },
