@@ -24,6 +24,7 @@ const Footer = () => {
     {
       title: "Resources",
       links: [
+        { label: "Healthcare Media News", href: "/blog" },
         { label: "Case Studies", href: "#case-studies" },
         { label: "Documentation", href: "#docs" },
         { label: "Industry Reports", href: "#reports" },
