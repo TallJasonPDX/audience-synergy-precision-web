@@ -62,14 +62,12 @@ const Header = () => {
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
-              <Target className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <div className="font-display font-bold text-lg">Audience Synergy</div>
-              <div className="text-xs text-muted-foreground">Precision Healthcare Data</div>
-            </div>
+          <div className="flex items-center">
+            <img 
+              src="/lovable-uploads/f244ebe9-b404-40fe-b795-a4b821e85ffe.png" 
+              alt="Audience Synergy" 
+              className="h-8 md:h-10 w-auto"
+            />
           </div>
 
           {/* Desktop Navigation */}
