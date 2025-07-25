@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, User, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getBlogImageUrl } from "@/lib/storage";
 
 interface BlogPost {
   id: string;
@@ -159,11 +160,11 @@ const Blog = () => {
               <Card key={post.id} className="group hover:shadow-lg transition-shadow duration-300">
                 {post.featured_image_url && (
                   <div className="aspect-video overflow-hidden rounded-t-lg">
-                    <img
-                      src={post.featured_image_url}
-                      alt={post.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+                     <img
+                       src={getBlogImageUrl(post.featured_image_url)}
+                       alt={post.title}
+                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                     />
                   </div>
                 )}
                 <CardHeader className="pb-3">

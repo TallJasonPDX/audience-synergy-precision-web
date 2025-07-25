@@ -1,1 +1,7 @@
 project_id = "hnjqgdttknlyarxijpsy"
+
+[functions.blog-api]
+verify_jwt = false
+
+[functions.blog-image-upload]
+verify_jwt = false

@@ -118,20 +118,23 @@ blog_posts (id, title, slug, excerpt, content, featured_image_url,
 - **Real-time updates** - Instant content synchronization
 - **Image handling** - Featured images and inline content images
 
-## 🚀 Blog API
+## 🚀 Blog API with Image Storage
 
-### API Endpoint
+### API Endpoints
 ```
 POST https://hnjqgdttknlyarxijpsy.supabase.co/functions/v1/blog-api
+POST https://hnjqgdttknlyarxijpsy.supabase.co/functions/v1/blog-image-upload
 ```
 
 ### Authentication
-The API uses bearer token authentication. Include the token in the Authorization header:
+Both APIs use bearer token authentication:
 ```
 Authorization: Bearer YOUR_BLOG_API_TOKEN
 ```
 
-### Request Format
+### Blog Post Creation API
+
+#### Request Format
 ```json
 {
   "title": "Your Blog Post Title",
@@ -139,12 +142,12 @@ Authorization: Bearer YOUR_BLOG_API_TOKEN
   "excerpt": "Brief excerpt (optional)",
   "category": "Category Name (optional - creates if doesn't exist)",
   "author": "Author Name (optional - creates if doesn't exist)",
-  "featured_image_url": "https://example.com/image.jpg (optional)",
+  "featured_image_url": "image-path-or-url (optional)",
   "published": true
 }
 ```
 
-### Response Format
+#### Response Format
 ```json
 {
   "success": true,
@@ -160,23 +163,51 @@ Authorization: Bearer YOUR_BLOG_API_TOKEN
 }
 ```
 
+### Image Upload API
+
+#### Request Format (multipart/form-data)
+- **file**: Image file (JPEG, PNG, WebP, GIF, max 5MB)
+- **folder**: Target folder (`featured`, `content`, `thumbnails`)
+
+#### Response Format
+```json
+{
+  "success": true,
+  "data": {
+    "path": "featured/1234567890-abc123.jpg",
+    "url": "https://hnjqgdttknlyarxijpsy.supabase.co/storage/v1/object/public/blog-images/featured/1234567890-abc123.jpg",
+    "filename": "featured/1234567890-abc123.jpg",
+    "size": 1024576,
+    "type": "image/jpeg"
+  }
+}
+```
+
 ### Error Responses
-- **400 Bad Request** - Missing required fields or validation errors
+- **400 Bad Request** - Missing fields, invalid file type, or file too large
 - **401 Unauthorized** - Invalid or missing API token
 - **409 Conflict** - Post with same slug already exists
 - **500 Internal Server Error** - Server error
 
-### Features
-- **Automatic slug generation** - SEO-friendly URLs from titles
-- **Category auto-creation** - Creates new categories if they don't exist
-- **Author auto-creation** - Creates new authors if they don't exist
-- **Duplicate prevention** - Prevents posts with identical slugs
-- **Flexible publishing** - Create drafts or publish immediately
-- **Rich content support** - Full HTML content with images
+### Storage Features
+- **Public Storage Bucket** - `blog-images` bucket for all blog content
+- **Organized Folders** - `featured/`, `content/`, `thumbnails/`
+- **File Type Validation** - JPEG, PNG, WebP, GIF support
+- **Size Limits** - 5MB maximum file size
+- **Automatic URLs** - Helper functions for image display
+- **Flexible Image Sources** - Support for both storage paths and external URLs
 
 ### Usage Examples
 
-#### Create Published Post
+#### 1. Upload Featured Image
+```bash
+curl -X POST https://hnjqgdttknlyarxijpsy.supabase.co/functions/v1/blog-image-upload \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -F "file=@/path/to/image.jpg" \
+  -F "folder=featured"
+```
+
+#### 2. Create Post with Uploaded Image
 ```bash
 curl -X POST https://hnjqgdttknlyarxijpsy.supabase.co/functions/v1/blog-api \
   -H "Authorization: Bearer YOUR_API_TOKEN" \
@@ -187,26 +218,29 @@ curl -X POST https://hnjqgdttknlyarxijpsy.supabase.co/functions/v1/blog-api \
     "excerpt": "Exploring the latest trends in healthcare data",
     "category": "Industry Insights",
     "author": "AudienceSynergy Team",
+    "featured_image_url": "featured/1234567890-abc123.jpg",
     "published": true
   }'
 ```
 
-#### Create Draft Post
+#### 3. Create Post with External Image
 ```bash
 curl -X POST https://hnjqgdttknlyarxijpsy.supabase.co/functions/v1/blog-api \
   -H "Authorization: Bearer YOUR_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "Draft Article",
-    "content": "<p>Work in progress...</p>",
-    "published": false
+    "title": "Industry Analysis",
+    "content": "<p>Market insights...</p>",
+    "featured_image_url": "https://example.com/external-image.jpg",
+    "published": true
   }'
 ```
 
 ### Setup Requirements
 1. Configure `BLOG_API_TOKEN` secret in Supabase project settings
-2. Ensure proper RLS policies are in place for blog tables
-3. API token should be kept secure and not exposed in frontend code
+2. Blog images storage bucket is automatically configured
+3. RLS policies allow public read access and authenticated uploads
+4. API token should be kept secure and not exposed in frontend code
 
 ## 🚀 Getting Started
 

@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, User, ArrowLeft } from "lucide-react";
+import { getBlogImageUrl } from "@/lib/storage";
 
 interface BlogPost {
   id: string;
@@ -153,7 +154,7 @@ const BlogPost = () => {
             {post.featured_image_url && (
               <div className="mb-8">
                 <img
-                  src={post.featured_image_url}
+                  src={getBlogImageUrl(post.featured_image_url)}
                   alt={post.title}
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
