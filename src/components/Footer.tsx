@@ -1,5 +1,6 @@
 import { Target, Mail, Phone, MapPin, Linkedin, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   const footerSections = [
@@ -50,15 +51,13 @@ const Footer = () => {
           <div className="grid lg:grid-cols-6 gap-12">
             {/* Company info */}
             <div className="lg:col-span-2">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center">
-                  <Target className="w-7 h-7 text-white" />
-                </div>
-                <div>
-                  <div className="font-display font-bold text-xl">Audience Synergy</div>
-                  <div className="text-sm text-muted-foreground">Precision Healthcare Data</div>
-                </div>
-              </div>
+              <Link to="/" className="inline-block mb-6">
+                <img 
+                  src="/lovable-uploads/f244ebe9-b404-40fe-b795-a4b821e85ffe.png" 
+                  alt="Audience Synergy" 
+                  className="h-10 w-auto"
+                />
+              </Link>
               
               <p className="text-muted-foreground mb-6 leading-relaxed">
                 NPI-verified, deterministic healthcare professional audiences for pharmaceutical companies, 
