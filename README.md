@@ -1,73 +1,203 @@
-# Welcome to your Lovable project
+# AudienceSynergy - Healthcare Data Targeting Platform
 
-## Project info
+AudienceSynergy is a precision healthcare audience targeting platform that provides deterministic, NPI-verified physician data for healthcare marketing campaigns. Our platform enables pharmaceutical companies, medical device manufacturers, and healthcare service providers to reach the right healthcare professionals with unprecedented accuracy.
 
-**URL**: https://lovable.dev/projects/0a685ee3-1ec2-48ee-9bc5-a8a879a0b80b
+## 🎯 Platform Overview
 
-## How can I edit this code?
+### Core Value Proposition
+- **Deterministic Targeting**: NPI-verified physician data for 93% coverage of US physicians
+- **Precision Marketing**: Move beyond behavioral assumptions to verified healthcare professional data
+- **Physician-Level Reporting**: Detailed analytics and engagement metrics
+- **High Performance**: 4.7% average CTR on HCP banner campaigns
 
-There are several ways of editing your application.
+### Target Audience
+- Pharmaceutical companies
+- Medical device manufacturers
+- Healthcare technology companies
+- Medical education providers
+- Healthcare service organizations
 
-**Use Lovable**
+## 🛠️ Technology Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0a685ee3-1ec2-48ee-9bc5-a8a879a0b80b) and start prompting.
+### Frontend
+- **React 18** - Modern React with hooks and functional components
+- **TypeScript** - Full type safety and enhanced developer experience
+- **Vite** - Fast build tool and development server
+- **Tailwind CSS** - Utility-first CSS framework with custom design system
+- **shadcn/ui** - High-quality, accessible UI components
+- **React Router** - Client-side routing and navigation
+- **TanStack Query** - Server state management and caching
+- **Lucide React** - Beautiful, customizable icons
 
-Changes made via Lovable will be committed automatically to this repo.
+### Backend & Database
+- **Supabase** - Backend-as-a-Service with PostgreSQL
+- **Row Level Security (RLS)** - Database-level security policies
+- **Real-time subscriptions** - Live data updates
+- **Edge Functions** - Serverless API endpoints (Deno runtime)
 
-**Use your preferred IDE**
+### Deployment & Hosting
+- **Lovable Platform** - Integrated development and hosting
+- **Custom domain support** - Professional domain configuration
+- **Automatic deployments** - CI/CD pipeline integration
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 📁 Project Structure
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```
+src/
+├── components/           # Reusable UI components
+│   ├── ui/              # shadcn/ui base components
+│   ├── Hero.tsx         # Landing page hero section
+│   ├── ValueProposition.tsx  # Deterministic vs traditional comparison
+│   ├── AudienceTypes.tsx     # Target audience showcase
+│   ├── ServiceOptions.tsx    # Service offerings
+│   ├── KeyMetrics.tsx   # Performance metrics display
+│   ├── SocialProof.tsx  # Testimonials and case studies
+│   ├── CTASection.tsx   # Call-to-action sections
+│   ├── Header.tsx       # Navigation header
+│   └── Footer.tsx       # Site footer
+├── pages/               # Route components
+│   ├── Index.tsx        # Homepage
+│   ├── Audiences.tsx    # Audience targeting page
+│   ├── Industries.tsx   # Industry solutions
+│   ├── Services.tsx     # Service offerings
+│   ├── Blog.tsx         # Blog listing page
+│   ├── BlogPost.tsx     # Individual blog post
+│   └── NotFound.tsx     # 404 error page
+├── hooks/               # Custom React hooks
+├── lib/                 # Utility functions
+├── integrations/        # Third-party integrations
+│   └── supabase/        # Supabase client and types
+└── assets/              # Static assets and images
+```
 
-Follow these steps:
+## 🎨 Design System
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Color Palette
+The platform uses a sophisticated healthcare-focused color scheme:
+- **Primary**: Professional blue tones for trust and reliability
+- **Secondary**: Complementary accent colors for CTAs and highlights
+- **Semantic colors**: Success, warning, error, and info states
+- **Dark/Light modes**: Full theme support with automatic switching
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Typography
+- **Inter font family** - Clean, modern, and highly readable
+- **Responsive scale** - Fluid typography that adapts to screen sizes
+- **Semantic hierarchy** - Clear content structure and information flow
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Components
+- **Consistent spacing** - 8px grid system for perfect alignment
+- **Accessible interactions** - WCAG compliant hover, focus, and active states
+- **Responsive design** - Mobile-first approach with breakpoint optimization
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+## 📊 Blog System
+
+### Database Schema
+```sql
+-- Blog Categories
+blog_categories (id, name, slug, description, created_at)
+
+-- Blog Authors  
+blog_authors (id, name, email, bio, avatar_url, created_at)
+
+-- Blog Posts
+blog_posts (id, title, slug, excerpt, content, featured_image_url, 
+           published, published_at, category_id, author_id, created_at, updated_at)
+```
+
+### Features
+- **Category filtering** - Organize content by healthcare topics
+- **Author management** - Multiple authors with profiles and bios
+- **Rich content** - HTML content support with images and formatting
+- **SEO optimization** - Slug-based URLs and meta information
+- **Publication workflow** - Draft and published states
+- **Responsive design** - Optimized reading experience across devices
+
+### Content Management
+- **Supabase backend** - Secure, scalable content storage
+- **RLS policies** - Published content publicly accessible
+- **Real-time updates** - Instant content synchronization
+- **Image handling** - Featured images and inline content images
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+ with npm
+- Git for version control
+
+### Installation
+```bash
+# Clone the repository
+git clone <repository-url>
+cd audiencesynergy
+
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Environment Setup
+The project uses Supabase for backend services. Configuration is handled automatically through the Lovable platform integration.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🔧 Development
 
-**Use GitHub Codespaces**
+### Available Scripts
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Code Standards
+- **TypeScript strict mode** - Full type safety enforcement
+- **ESLint configuration** - Consistent code style and quality
+- **Component organization** - Single responsibility and reusability
+- **Custom hooks** - Shared logic extraction and testing
 
-## What technologies are used for this project?
+## 🎯 Key Features
 
-This project is built with:
+### Lead Generation
+- **Contact forms** - Multiple touchpoints for lead capture
+- **Demo scheduling** - Calendar integration for sales meetings
+- **Newsletter signup** - Content marketing and nurturing
+- **Consent management** - GDPR/CCPA compliant data collection
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Performance Monitoring
+- **Real-time metrics** - Live dashboard with key performance indicators
+- **Analytics integration** - Comprehensive user behavior tracking
+- **Conversion tracking** - Lead generation and campaign effectiveness
 
-## How can I deploy this project?
+### Content Marketing
+- **Healthcare blog** - Industry insights and thought leadership
+- **Resource library** - Whitepapers, case studies, and guides
+- **SEO optimization** - Search engine visibility and organic growth
 
-Simply open [Lovable](https://lovable.dev/projects/0a685ee3-1ec2-48ee-9bc5-a8a879a0b80b) and click on Share -> Publish.
+## 🚀 Deployment
 
-## Can I connect a custom domain to my Lovable project?
+### Lovable Platform
+The project is configured for seamless deployment on the Lovable platform:
+- **Automatic builds** - Triggered by code changes
+- **Preview environments** - Branch-based staging deployments
+- **Custom domains** - Professional domain configuration
+- **SSL certificates** - Automatic HTTPS encryption
 
-Yes, you can!
+### Manual Deployment
+For alternative hosting providers:
+```bash
+npm run build
+# Deploy dist/ folder to your hosting service
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 📝 License
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project is proprietary software developed for AudienceSynergy's healthcare targeting platform.
+
+## 🤝 Contributing
+
+This is a private project. For internal development guidelines and contribution standards, please refer to the internal development documentation.
+
+---
+
+Built with ❤️ for the healthcare marketing industry
