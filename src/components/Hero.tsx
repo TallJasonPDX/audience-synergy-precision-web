@@ -4,7 +4,7 @@ import heroImage from "@/assets/hero-healthcare-data.jpg";
 
 const Hero = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 md:pt-16">{/* Fixed: Added pt-20 for mobile to push content below fixed header */}
       {/* Background with glass overlay */}
       <div className="absolute inset-0">
         <img 
@@ -22,11 +22,11 @@ const Hero = () => {
         <div className="floating absolute bottom-32 left-40 w-24 h-24 bg-secondary/20 rounded-full blur-xl" style={{animationDelay: '2s'}} />
       </div>
 
-      <div className="relative z-10 container mx-auto px-6 text-center">
+      <div className="relative z-10 container mx-auto px-6 text-center pt-4 md:pt-0">{/* Added extra top padding for mobile */}
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 glass-card mb-8 text-sm font-medium text-primary">
+        <div className="inline-flex items-center gap-2 glass-card mb-6 md:mb-8 text-sm font-medium text-primary px-4 py-2">
           <Target className="w-4 h-4" />
-          2025 YTD: 0.80% Click-Through Rate on HCP Banners
+          <span className="text-xs md:text-sm">2025 YTD: 0.80% Click-Through Rate on HCP Banners</span>
         </div>
 
         {/* Main heading */}
