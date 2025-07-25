@@ -22,6 +22,7 @@ export type Database = {
           email: string
           id: string
           name: string
+          site_id: string
         }
         Insert: {
           avatar_url?: string | null
@@ -30,6 +31,7 @@ export type Database = {
           email: string
           id?: string
           name: string
+          site_id?: string
         }
         Update: {
           avatar_url?: string | null
@@ -38,6 +40,7 @@ export type Database = {
           email?: string
           id?: string
           name?: string
+          site_id?: string
         }
         Relationships: []
       }
@@ -47,6 +50,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
+          site_id: string
           slug: string
         }
         Insert: {
@@ -54,6 +58,7 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
+          site_id?: string
           slug: string
         }
         Update: {
@@ -61,6 +66,7 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          site_id?: string
           slug?: string
         }
         Relationships: []
@@ -76,6 +82,7 @@ export type Database = {
           id: string
           published: boolean
           published_at: string | null
+          site_id: string
           slug: string
           title: string
           updated_at: string
@@ -90,6 +97,7 @@ export type Database = {
           id?: string
           published?: boolean
           published_at?: string | null
+          site_id?: string
           slug: string
           title: string
           updated_at?: string
@@ -104,6 +112,7 @@ export type Database = {
           id?: string
           published?: boolean
           published_at?: string | null
+          site_id?: string
           slug?: string
           title?: string
           updated_at?: string
@@ -137,6 +146,7 @@ export type Database = {
           name: string
           organization: string
           phone: string
+          site_id: string
         }
         Insert: {
           consent?: boolean
@@ -149,6 +159,7 @@ export type Database = {
           name: string
           organization: string
           phone: string
+          site_id?: string
         }
         Update: {
           consent?: boolean
@@ -161,6 +172,28 @@ export type Database = {
           name?: string
           organization?: string
           phone?: string
+          site_id?: string
+        }
+        Relationships: []
+      }
+      sites: {
+        Row: {
+          created_at: string | null
+          domain: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          domain?: string | null
+          id: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          domain?: string | null
+          id?: string
+          name?: string
         }
         Relationships: []
       }
