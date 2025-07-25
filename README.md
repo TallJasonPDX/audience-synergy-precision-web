@@ -118,6 +118,96 @@ blog_posts (id, title, slug, excerpt, content, featured_image_url,
 - **Real-time updates** - Instant content synchronization
 - **Image handling** - Featured images and inline content images
 
+## 🚀 Blog API
+
+### API Endpoint
+```
+POST https://hnjqgdttknlyarxijpsy.supabase.co/functions/v1/blog-api
+```
+
+### Authentication
+The API uses bearer token authentication. Include the token in the Authorization header:
+```
+Authorization: Bearer YOUR_BLOG_API_TOKEN
+```
+
+### Request Format
+```json
+{
+  "title": "Your Blog Post Title",
+  "content": "<p>Your HTML content...</p>",
+  "excerpt": "Brief excerpt (optional)",
+  "category": "Category Name (optional - creates if doesn't exist)",
+  "author": "Author Name (optional - creates if doesn't exist)",
+  "featured_image_url": "https://example.com/image.jpg (optional)",
+  "published": true
+}
+```
+
+### Response Format
+```json
+{
+  "success": true,
+  "data": {
+    "id": "uuid",
+    "title": "Your Blog Post Title",
+    "slug": "your-blog-post-title",
+    "published": true,
+    "category": "Category Name",
+    "author": "Author Name",
+    "created_at": "2024-01-01T00:00:00Z"
+  }
+}
+```
+
+### Error Responses
+- **400 Bad Request** - Missing required fields or validation errors
+- **401 Unauthorized** - Invalid or missing API token
+- **409 Conflict** - Post with same slug already exists
+- **500 Internal Server Error** - Server error
+
+### Features
+- **Automatic slug generation** - SEO-friendly URLs from titles
+- **Category auto-creation** - Creates new categories if they don't exist
+- **Author auto-creation** - Creates new authors if they don't exist
+- **Duplicate prevention** - Prevents posts with identical slugs
+- **Flexible publishing** - Create drafts or publish immediately
+- **Rich content support** - Full HTML content with images
+
+### Usage Examples
+
+#### Create Published Post
+```bash
+curl -X POST https://hnjqgdttknlyarxijpsy.supabase.co/functions/v1/blog-api \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Healthcare Data Revolution",
+    "content": "<p>The future of healthcare targeting...</p>",
+    "excerpt": "Exploring the latest trends in healthcare data",
+    "category": "Industry Insights",
+    "author": "AudienceSynergy Team",
+    "published": true
+  }'
+```
+
+#### Create Draft Post
+```bash
+curl -X POST https://hnjqgdttknlyarxijpsy.supabase.co/functions/v1/blog-api \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Draft Article",
+    "content": "<p>Work in progress...</p>",
+    "published": false
+  }'
+```
+
+### Setup Requirements
+1. Configure `BLOG_API_TOKEN` secret in Supabase project settings
+2. Ensure proper RLS policies are in place for blog tables
+3. API token should be kept secure and not exposed in frontend code
+
 ## 🚀 Getting Started
 
 ### Prerequisites
