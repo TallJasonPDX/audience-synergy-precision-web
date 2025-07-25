@@ -7,6 +7,49 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Rate limiting storage (in production, use a proper cache like Redis)
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+function checkRateLimit(ip: string, maxRequests = 10, windowMs = 60000): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(ip);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
+    return true;
+  }
+  
+  if (record.count >= maxRequests) {
+    return false;
+  }
+  
+  record.count++;
+  return true;
+}
+
+function validateInput(data: any): { isValid: boolean; errors: string[] } {
+  const errors: string[] = [];
+  
+  if (!data.title || typeof data.title !== 'string' || data.title.trim().length === 0) {
+    errors.push('Title is required and must be a non-empty string');
+  }
+  
+  if (!data.content || typeof data.content !== 'string' || data.content.trim().length === 0) {
+    errors.push('Content is required and must be a non-empty string');
+  }
+  
+  // Sanitize inputs
+  if (data.title && typeof data.title === 'string') {
+    data.title = data.title.trim().slice(0, 200);
+  }
+  
+  if (data.excerpt && typeof data.excerpt === 'string') {
+    data.excerpt = data.excerpt.trim().slice(0, 500);
+  }
+  
+  return { isValid: errors.length === 0, errors };
+}
+
 interface BlogPostPayload {
   title: string;
   content: string;
@@ -25,6 +68,8 @@ function createSlug(title: string): string {
 }
 
 serve(async (req) => {
+  const clientIp = req.headers.get('x-forwarded-for') || 'unknown';
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -34,6 +79,14 @@ serve(async (req) => {
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Rate limiting
+  if (!checkRateLimit(clientIp)) {
+    return new Response(JSON.stringify({ error: 'Too many requests' }), {
+      status: 429,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
@@ -66,10 +119,12 @@ serve(async (req) => {
     // Parse request body
     const payload: BlogPostPayload = await req.json();
 
-    // Validate required fields
-    if (!payload.title || !payload.content) {
+    // Validate input
+    const validation = validateInput(payload);
+    if (!validation.isValid) {
       return new Response(JSON.stringify({ 
-        error: 'Missing required fields: title and content are required' 
+        error: 'Validation failed',
+        details: validation.errors 
       }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

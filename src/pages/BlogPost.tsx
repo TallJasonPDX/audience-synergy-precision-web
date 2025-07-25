@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, User, ArrowLeft } from "lucide-react";
 import { getBlogImageUrl } from "@/lib/storage";
+import DOMPurify from 'dompurify';
 
 interface BlogPost {
   id: string;
@@ -163,7 +164,13 @@ const BlogPost = () => {
 
             {/* Article Content */}
             <div className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-foreground prose-a:text-primary prose-strong:text-foreground prose-blockquote:text-muted-foreground prose-blockquote:border-l-primary">
-              <div dangerouslySetInnerHTML={{ __html: post.content }} />
+              <div dangerouslySetInnerHTML={{ 
+                __html: DOMPurify.sanitize(post.content, {
+                  ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'img', 'blockquote', 'code', 'pre'],
+                  ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'target', 'rel'],
+                  ALLOW_DATA_ATTR: false
+                })
+              }} />
             </div>
 
             {/* Author Bio */}
