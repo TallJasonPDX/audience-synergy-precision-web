@@ -149,6 +149,7 @@ const FrameSequencePlayer = ({
     if (isLoading || !containerRef.current) return;
 
     const animation = { frame: 0 };
+    let scrollTriggerInstance: ScrollTrigger;
     
     const st = ScrollTrigger.create({
         trigger: containerRef.current,
@@ -167,22 +168,35 @@ const FrameSequencePlayer = ({
             
             // Check if animation is complete
             if (frameIndex >= totalFrames - 1 && !animationCompleted) {
-                console.log("Animation completed - locking to final frame");
+                console.log("Animation completed - resizing container and locking to final frame");
                 setAnimationCompleted(true);
+                
+                // Resize the scroll trigger to reduce scroll area
+                setTimeout(() => {
+                    st.kill();
+                    scrollTriggerInstance = ScrollTrigger.create({
+                        trigger: containerRef.current,
+                        start: "top 150px",
+                        end: "+=200", // Much shorter end distance
+                        pin: true,
+                        anticipatePin: 1,
+                        onUpdate: () => {
+                            // Always show final frame
+                            if (currentFrameRef.current !== totalFrames - 1) {
+                                currentFrameRef.current = totalFrames - 1;
+                                requestAnimationFrame(() => drawFrame(totalFrames - 1));
+                            }
+                        }
+                    });
+                }, 100);
             }
             
-            // Only animate if not completed or if scrolling forward
-            if (!animationCompleted || self.direction === 1) {
+            // Only animate if not completed
+            if (!animationCompleted) {
                 console.log(`Animation progress: frame ${frameIndex + 1}/${totalFrames} (${((frameIndex + 1) / totalFrames * 100).toFixed(1)}%)`);
                 if (frameIndex !== currentFrameRef.current) {
                     currentFrameRef.current = frameIndex;
                     requestAnimationFrame(() => drawFrame(frameIndex));
-                }
-            } else {
-                // Keep showing final frame when scrolling back up after completion
-                if (currentFrameRef.current !== totalFrames - 1) {
-                    currentFrameRef.current = totalFrames - 1;
-                    requestAnimationFrame(() => drawFrame(totalFrames - 1));
                 }
             }
         }
@@ -190,6 +204,9 @@ const FrameSequencePlayer = ({
 
     return () => {
       st.kill();
+      if (scrollTriggerInstance) {
+        scrollTriggerInstance.kill();
+      }
     };
   }, [isLoading, totalFrames, drawFrame, animationCompleted]);
 
