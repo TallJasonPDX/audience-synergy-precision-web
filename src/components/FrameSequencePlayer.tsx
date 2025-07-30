@@ -149,8 +149,8 @@ const FrameSequencePlayer = ({
     const tl = gsap.timeline({
         scrollTrigger: {
             trigger: containerRef.current,
-            start: "top top",
-            end: "+=2000", // Pin for a 2000px scroll duration
+            start: "top 150px", // Pushes the pin start down by 150px
+            end: "+=1200",      // Reduces the scroll duration to minimize extra space
             scrub: 0.5,
             pin: true,
             anticipatePin: 1,
