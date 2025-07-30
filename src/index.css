@@ -5,6 +5,7 @@
 /* Audience Synergy Healthcare B2B Design System */
 
 @layer base {
+  /* Default theme: Healthcare Professional */
   :root {
     /* Healthcare Professional Color Palette */
     --background: 248 250 252;
@@ -57,6 +58,289 @@
     --shadow-premium: 0 20px 40px -12px rgba(31, 64, 175, 0.15);
     --shadow-glass: 0 8px 32px rgba(31, 38, 135, 0.15);
     --shadow-float: 0 12px 24px -8px rgba(31, 64, 175, 0.2);
+
+    /* Sidebar */
+    --sidebar-background: 248 250 252;
+    --sidebar-foreground: 218 54% 8%;
+    --sidebar-primary: 214 100% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96.1%;
+    --sidebar-accent-foreground: 218 54% 8%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-ring: 214 100% 35%;
+
+    --radius: 0.75rem;
+  }
+
+  /* Theme: Light Blue & White (Clean & Trustworthy) */
+  [data-theme="light-blue-white"] {
+    --background: 202 100% 97%; /* #EAF6FB */
+    --foreground: 210 20% 15%; /* #1F2937 */
+    --primary: 210 88% 55%; /* #2563EB */
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 210 88% 65%;
+    --primary-dark: 210 88% 45%;
+    --secondary: 210 14% 53%; /* #6B7280 */
+    --secondary-foreground: 0 0% 100%;
+    --secondary-light: 210 14% 63%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 210 14% 53%;
+    --accent: 210 88% 55%;
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 210 88% 65%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 40% 90%;
+    --input: 210 40% 94%;
+    --ring: 210 88% 55%;
+    
+    /* Glass morphism effects */
+    --glass-bg: 234 246 251 / 0.8;
+    --glass-border: 37 99 235 / 0.1;
+    --glass-shadow: 0 8px 32px rgba(37, 99, 235, 0.15);
+    
+    /* Custom gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(210, 88%, 55%) 0%, hsl(210, 88%, 65%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(210, 88%, 65%) 0%, hsl(202, 100%, 85%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(234, 246, 251, 0.9) 0%, rgba(234, 246, 251, 0.6) 100%);
+    
+    /* Premium shadows */
+    --shadow-premium: 0 25px 50px -12px rgba(37, 99, 235, 0.25);
+    --shadow-glass: 0 8px 32px rgba(37, 99, 235, 0.15);
+    --shadow-float: 0 10px 25px -3px rgba(37, 99, 235, 0.1);
+    
+    /* Sidebar */
+    --sidebar-background: 202 100% 97%;
+    --sidebar-foreground: 210 20% 15%;
+    --sidebar-primary: 210 88% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 210 20% 15%;
+    --sidebar-border: 210 40% 90%;
+    --sidebar-ring: 210 88% 55%;
+    
+    /* Card and popover */
+    --card: 0 0% 100%;
+    --card-foreground: 210 20% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 20% 15%;
+  }
+
+  /* Theme: Navy & Sky Blue (Modern & Confident) */
+  [data-theme="navy-sky-blue"] {
+    --background: 204 100% 98%; /* #F0F9FF */
+    --foreground: 222 84% 5%; /* #0F172A */
+    --primary: 214 95% 59%; /* #3B82F6 */
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 214 95% 69%;
+    --primary-dark: 214 95% 49%;
+    --secondary: 215 25% 85%; /* #E2E8F0 */
+    --secondary-foreground: 222 84% 5%;
+    --secondary-light: 215 25% 90%;
+    --muted: 204 100% 95%;
+    --muted-foreground: 215 20% 50%;
+    --accent: 214 95% 59%;
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 214 95% 69%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 215 25% 85%;
+    --input: 215 25% 90%;
+    --ring: 214 95% 59%;
+    
+    /* Glass morphism effects */
+    --glass-bg: 240 249 255 / 0.8;
+    --glass-border: 59 130 246 / 0.1;
+    --glass-shadow: 0 8px 32px rgba(59, 130, 246, 0.15);
+    
+    /* Custom gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(214, 95%, 59%) 0%, hsl(204, 100%, 75%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(204, 100%, 75%) 0%, hsl(214, 95%, 69%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(240, 249, 255, 0.9) 0%, rgba(240, 249, 255, 0.6) 100%);
+    
+    /* Premium shadows */
+    --shadow-premium: 0 25px 50px -12px rgba(59, 130, 246, 0.25);
+    --shadow-glass: 0 8px 32px rgba(59, 130, 246, 0.15);
+    --shadow-float: 0 10px 25px -3px rgba(59, 130, 246, 0.1);
+    
+    /* Sidebar */
+    --sidebar-background: 204 100% 98%;
+    --sidebar-foreground: 222 84% 5%;
+    --sidebar-primary: 214 95% 59%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 25% 90%;
+    --sidebar-accent-foreground: 222 84% 5%;
+    --sidebar-border: 215 25% 85%;
+    --sidebar-ring: 214 95% 59%;
+    
+    /* Card and popover */
+    --card: 0 0% 100%;
+    --card-foreground: 222 84% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 84% 5%;
+  }
+
+  /* Theme: Cool Grey & Blue (Neutral & Minimal) */
+  [data-theme="cool-grey-blue"] {
+    --background: 210 20% 98%; /* #F9FAFB */
+    --foreground: 215 25% 13%; /* #1E293B */
+    --primary: 212 95% 47%; /* #0077CC / #1D4ED8 */
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 212 95% 57%;
+    --primary-dark: 212 95% 37%;
+    --secondary: 210 14% 83%; /* #D1D5DB */
+    --secondary-foreground: 215 25% 13%;
+    --secondary-light: 210 14% 88%;
+    --muted: 210 20% 95%;
+    --muted-foreground: 215 15% 50%;
+    --accent: 212 95% 47%;
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 212 95% 57%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 14% 83%;
+    --input: 210 14% 88%;
+    --ring: 212 95% 47%;
+    
+    /* Glass morphism effects */
+    --glass-bg: 249 250 251 / 0.8;
+    --glass-border: 29 78 216 / 0.1;
+    --glass-shadow: 0 8px 32px rgba(29, 78, 216, 0.15);
+    
+    /* Custom gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(212, 95%, 47%) 0%, hsl(212, 95%, 57%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(212, 95%, 57%) 0%, hsl(210, 20%, 85%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(249, 250, 251, 0.9) 0%, rgba(249, 250, 251, 0.6) 100%);
+    
+    /* Premium shadows */
+    --shadow-premium: 0 25px 50px -12px rgba(29, 78, 216, 0.25);
+    --shadow-glass: 0 8px 32px rgba(29, 78, 216, 0.15);
+    --shadow-float: 0 10px 25px -3px rgba(29, 78, 216, 0.1);
+    
+    /* Sidebar */
+    --sidebar-background: 210 20% 98%;
+    --sidebar-foreground: 215 25% 13%;
+    --sidebar-primary: 212 95% 47%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 14% 88%;
+    --sidebar-accent-foreground: 215 25% 13%;
+    --sidebar-border: 210 14% 83%;
+    --sidebar-ring: 212 95% 47%;
+    
+    /* Card and popover */
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 13%;
+  }
+
+  /* Theme: Soft Blue Gradient (Tech-Forward) */
+  [data-theme="soft-blue-gradient"] {
+    --background: 195 100% 94%; /* linear-gradient(to bottom right, #E0F2FE, #F0F9FF) */
+    --foreground: 222 84% 5%; /* #0F172A */
+    --primary: 200 95% 47%; /* #0284C7 */
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 200 95% 57%;
+    --primary-dark: 200 95% 37%;
+    --secondary: 210 25% 40%; /* #475569 */
+    --secondary-foreground: 0 0% 100%;
+    --secondary-light: 210 25% 50%;
+    --muted: 195 100% 96%;
+    --muted-foreground: 210 25% 40%;
+    --accent: 200 95% 47%;
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 200 95% 57%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 195 100% 85%;
+    --input: 195 100% 90%;
+    --ring: 200 95% 47%;
+    
+    /* Glass morphism effects */
+    --glass-bg: 224 242 254 / 0.8;
+    --glass-border: 2 132 199 / 0.1;
+    --glass-shadow: 0 8px 32px rgba(2, 132, 199, 0.15);
+    
+    /* Custom gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(200, 95%, 47%) 0%, hsl(195, 100%, 85%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(195, 100%, 85%) 0%, hsl(204, 100%, 90%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(224, 242, 254, 0.9) 0%, rgba(240, 249, 255, 0.6) 100%);
+    
+    /* Premium shadows */
+    --shadow-premium: 0 25px 50px -12px rgba(2, 132, 199, 0.25);
+    --shadow-glass: 0 8px 32px rgba(2, 132, 199, 0.15);
+    --shadow-float: 0 10px 25px -3px rgba(2, 132, 199, 0.1);
+    
+    /* Sidebar */
+    --sidebar-background: 195 100% 94%;
+    --sidebar-foreground: 222 84% 5%;
+    --sidebar-primary: 200 95% 47%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 195 100% 90%;
+    --sidebar-accent-foreground: 222 84% 5%;
+    --sidebar-border: 195 100% 85%;
+    --sidebar-ring: 200 95% 47%;
+    
+    /* Card and popover */
+    --card: 0 0% 100%;
+    --card-foreground: 222 84% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 84% 5%;
+  }
+
+  /* Theme: White & Blue Monochrome (Sharp & Bold) */
+  [data-theme="white-blue-monochrome"] {
+    --background: 0 0% 100%; /* #FFFFFF */
+    --foreground: 221 39% 11%; /* #1E3A8A */
+    --primary: 214 95% 59%; /* #3B82F6 */
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 214 95% 69%;
+    --primary-dark: 214 95% 49%;
+    --secondary: 215 16% 82%; /* #CBD5E1 */
+    --secondary-foreground: 221 39% 11%;
+    --secondary-light: 215 16% 87%;
+    --muted: 0 0% 98%;
+    --muted-foreground: 215 16% 50%;
+    --accent: 214 95% 59%;
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 214 95% 69%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 215 16% 82%;
+    --input: 215 16% 87%;
+    --ring: 214 95% 59%;
+    
+    /* Glass morphism effects */
+    --glass-bg: 255 255 255 / 0.9;
+    --glass-border: 59 130 246 / 0.1;
+    --glass-shadow: 0 8px 32px rgba(59, 130, 246, 0.15);
+    
+    /* Custom gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(214, 95%, 59%) 0%, hsl(214, 95%, 69%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(214, 95%, 69%) 0%, hsl(215, 16%, 90%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 100%);
+    
+    /* Premium shadows */
+    --shadow-premium: 0 25px 50px -12px rgba(59, 130, 246, 0.25);
+    --shadow-glass: 0 8px 32px rgba(59, 130, 246, 0.15);
+    --shadow-float: 0 10px 25px -3px rgba(59, 130, 246, 0.1);
+    
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 221 39% 11%;
+    --sidebar-primary: 214 95% 59%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 16% 87%;
+    --sidebar-accent-foreground: 221 39% 11%;
+    --sidebar-border: 215 16% 82%;
+    --sidebar-ring: 214 95% 59%;
+    
+    /* Card and popover */
+    --card: 0 0% 100%;
+    --card-foreground: 221 39% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 221 39% 11%;
+  }
 
     --radius: 0.75rem;
 

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Menu, X, Target, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -119,6 +120,7 @@ const Header = () => {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
+            <ThemeSwitcher />
             <Button variant="ghost" size="sm">
               Log In
             </Button>
