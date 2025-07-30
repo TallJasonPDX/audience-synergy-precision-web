@@ -6,7 +6,12 @@ export type Theme =
   | 'navy-sky-blue'
   | 'cool-grey-blue'
   | 'soft-blue-gradient'
-  | 'white-blue-monochrome';
+  | 'white-blue-monochrome'
+  | 'warm-neutrals-navy'
+  | 'charcoal-lime'
+  | 'black-yellow'
+  | 'slate-coral'
+  | 'off-white-teal';
 
 interface ThemeContextType {
   theme: Theme;
@@ -53,6 +58,31 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       value: 'white-blue-monochrome' as Theme,
       label: 'White & Blue Monochrome',
       description: 'Sharp & Bold'
+    },
+    {
+      value: 'warm-neutrals-navy' as Theme,
+      label: 'Warm Neutrals + Deep Navy',
+      description: 'Sophisticated & Calming'
+    },
+    {
+      value: 'charcoal-lime' as Theme,
+      label: 'Charcoal & Lime',
+      description: 'Modern & Energetic'
+    },
+    {
+      value: 'black-yellow' as Theme,
+      label: 'Black & Yellow',
+      description: 'Striking & Confident'
+    },
+    {
+      value: 'slate-coral' as Theme,
+      label: 'Slate + Coral',
+      description: 'Fresh & Friendly'
+    },
+    {
+      value: 'off-white-teal' as Theme,
+      label: 'Off-White & Teal-Green',
+      description: 'Clean & Balanced'
     }
   ];
 
