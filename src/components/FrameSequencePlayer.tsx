@@ -14,7 +14,7 @@ interface FrameSequencePlayerProps {
 }
 
 const FrameSequencePlayer = ({ 
-  totalFrames = 120, 
+  totalFrames = 212, 
   frameBaseName = "frame_",
   bucketName = "frames",
   className = "" 
@@ -149,7 +149,7 @@ const FrameSequencePlayer = ({
     const tl = gsap.timeline({
         scrollTrigger: {
             trigger: containerRef.current,
-            start: "top top",
+            start: "top 150px", // Start 150px from top for sticky header
             end: "+=2000", // Pin for a 2000px scroll duration
             scrub: 0.5,
             pin: true,
@@ -185,7 +185,7 @@ const FrameSequencePlayer = ({
   return (
     <div 
       ref={containerRef}
-      className={`relative w-full h-full flex items-center justify-center ${className}`}
+      className={`relative w-full aspect-video max-w-[1280px] mx-auto flex items-center justify-center ${className}`}
     >
       <canvas 
         ref={canvasRef}
