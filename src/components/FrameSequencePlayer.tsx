@@ -30,7 +30,7 @@ const FrameSequencePlayer = ({
   const getFrameUrl = useCallback((frameNumber: number) => {
     const paddedNumber = frameNumber.toString().padStart(3, '0');
     const framePath = `${frameBaseName}${paddedNumber}.png`;
-    return getBlogImageUrl(framePath);
+    return getBlogImageUrl(framePath, 'frames');
   }, [frameBaseName]);
 
   // Progressive frame loading

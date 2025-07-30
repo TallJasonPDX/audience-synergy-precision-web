@@ -1,9 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Get the public URL for a file in the blog-images bucket
+ * Get the public URL for a file in a storage bucket
  */
-export function getBlogImageUrl(path: string): string {
+export function getBlogImageUrl(path: string, bucket: string = 'blog-images'): string {
   if (!path) return '';
   
   // If it's already a full URL, return as is
@@ -13,7 +13,7 @@ export function getBlogImageUrl(path: string): string {
   
   // Get public URL from Supabase storage
   const { data } = supabase.storage
-    .from('blog-images')
+    .from(bucket)
     .getPublicUrl(path);
     
   return data.publicUrl;
