@@ -103,24 +103,8 @@ const FrameSequencePlayer = ({
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw frame maintaining aspect ratio
-    const aspectRatio = 16 / 9;
-    const canvasAspectRatio = canvas.width / canvas.height;
-    
-    let drawWidth = canvas.width;
-    let drawHeight = canvas.height;
-    let offsetX = 0;
-    let offsetY = 0;
-    
-    if (canvasAspectRatio > aspectRatio) {
-      drawWidth = canvas.height * aspectRatio;
-      offsetX = (canvas.width - drawWidth) / 2;
-    } else {
-      drawHeight = canvas.width / aspectRatio;
-      offsetY = (canvas.height - drawHeight) / 2;
-    }
-    
-    ctx.drawImage(frame, offsetX, offsetY, drawWidth, drawHeight);
+    // Draw frame to fill canvas completely
+    ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
   }, []);
 
   // Set up scroll animation
@@ -134,7 +118,8 @@ const FrameSequencePlayer = ({
     const scrollTrigger = ScrollTrigger.create({
       trigger: container,
       start: "bottom bottom",
-      end: "bottom top",
+      end: "+=100vh",
+      pin: true,
       scrub: 1,
       onUpdate: (self) => {
         if (animationId) {
@@ -219,17 +204,18 @@ const FrameSequencePlayer = ({
   return (
     <div 
       ref={containerRef}
-      className={`relative w-full h-[720px] md:h-[720px] ${className}`}
+      className={`relative w-full h-[720px] ${className}`}
     >
-      {/* Canvas container that fills the exact 720px height */}
+      {/* Canvas container with proper aspect ratio constraints */}
       <div className="w-full h-full flex items-center justify-center">
-        <div className="relative w-full h-full max-w-7xl mx-auto">
+        <div className="relative w-full h-full">
           <canvas 
             ref={canvasRef}
-            className="w-full h-full"
+            className="w-full h-full object-cover"
             style={{ 
-              aspectRatio: '16/9',
-              objectFit: 'contain'
+              maxWidth: '100%',
+              maxHeight: '720px',
+              aspectRatio: '16/9'
             }}
           />
           
