@@ -117,8 +117,8 @@ const FrameSequencePlayer = ({
 
     const scrollTrigger = ScrollTrigger.create({
       trigger: container,
-      start: "bottom bottom",
-      end: "+=100vh",
+      start: "center bottom",
+      end: "+=200vh",
       pin: true,
       scrub: 1,
       onUpdate: (self) => {
@@ -206,16 +206,15 @@ const FrameSequencePlayer = ({
       ref={containerRef}
       className={`relative w-full h-[720px] ${className}`}
     >
-      {/* Canvas container with proper aspect ratio constraints */}
+      {/* Canvas container respecting native image dimensions */}
       <div className="w-full h-full flex items-center justify-center">
-        <div className="relative w-full h-full">
+        <div className="relative w-full h-full max-w-[1280px] mx-auto">
           <canvas 
             ref={canvasRef}
-            className="w-full h-full object-cover"
+            className="w-full h-auto"
             style={{ 
-              maxWidth: '100%',
-              maxHeight: '720px',
-              aspectRatio: '16/9'
+              maxWidth: '1280px',
+              aspectRatio: '1280/720'
             }}
           />
           
