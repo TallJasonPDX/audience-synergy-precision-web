@@ -97,7 +97,7 @@ const Hero = () => {
             
             {/* Frame sequence animation */}
             <FrameSequencePlayer
-              totalFrames={120}
+              totalFrames={212}
               frameBaseName="frame_"
               bucketName="frames"
               className="relative z-10"
