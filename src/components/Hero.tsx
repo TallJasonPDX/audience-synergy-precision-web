@@ -73,10 +73,26 @@ const Hero = () => {
         </div>
 
         {/* Reserved space for future interactive element */}
-        <div className="mt-16 p-12 glass-card">
-          <div className="text-muted-foreground text-sm mb-4">Interactive Data Visualization</div>
-          <div className="h-32 bg-gradient-glass rounded-xl flex items-center justify-center border border-primary/10">
-            <span className="text-muted-foreground">Reserved for 3D Funnel Visualization</span>
+        <div className="mt-16 w-screen relative left-1/2 right-1/2 ml-[-50vw] mr-[-50vw]">
+          <div className="bg-black relative overflow-hidden">
+            {/* Subtle pattern overlay */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0" style={{
+                backgroundImage: `
+                  radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 1px, transparent 1px),
+                  radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05) 1px, transparent 1px)
+                `,
+                backgroundSize: '60px 60px'
+              }}></div>
+            </div>
+            <div className="container mx-auto px-6 py-24">
+              <div className="text-center mb-12">
+                <div className="text-white/60 text-sm mb-4">Interactive Data Visualization</div>
+                <div className="h-64 flex items-center justify-center">
+                  <span className="text-white/40 text-lg">Reserved for 3D Funnel Visualization</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
