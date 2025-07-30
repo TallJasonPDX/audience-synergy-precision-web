@@ -25,6 +25,7 @@ const FrameSequencePlayer = ({
   const [isLoading, setIsLoading] = useState(true);
   const framesRef = useRef<HTMLImageElement[]>([]);
   const currentFrameRef = useRef(0);
+  const [animationCompleted, setAnimationCompleted] = useState(false);
 
   // Get frame URL with proper formatting (no changes needed)
   const getFrameUrl = useCallback((frameNumber: number) => {
@@ -148,36 +149,49 @@ const FrameSequencePlayer = ({
     if (isLoading || !containerRef.current) return;
 
     const animation = { frame: 0 };
-    const tl = gsap.timeline({
-        scrollTrigger: {
-            trigger: containerRef.current,
-            start: "top 150px", // Start 150px from top for sticky header
-            end: "+=6000", // Much longer scroll distance for slower playback
-            scrub: 1, // Slower, smoother scrub response
-            pin: true,
-            anticipatePin: 1,
-        }
-    });
     
-    tl.to(animation, {
-        frame: totalFrames - 1,
-        snap: "frame",
-        ease: "none",
-        onUpdate: () => {
+    const st = ScrollTrigger.create({
+        trigger: containerRef.current,
+        start: "top 150px",
+        end: "+=6000",
+        scrub: 1,
+        pin: true,
+        anticipatePin: 1,
+        animation: gsap.to(animation, {
+            frame: totalFrames - 1,
+            snap: "frame",
+            ease: "none",
+        }),
+        onUpdate: (self) => {
             const frameIndex = Math.round(animation.frame);
-            console.log(`Animation progress: frame ${frameIndex + 1}/${totalFrames} (${((frameIndex + 1) / totalFrames * 100).toFixed(1)}%)`);
-            if (frameIndex !== currentFrameRef.current) {
-                currentFrameRef.current = frameIndex;
-                requestAnimationFrame(() => drawFrame(frameIndex));
+            
+            // Check if animation is complete
+            if (frameIndex >= totalFrames - 1 && !animationCompleted) {
+                console.log("Animation completed - locking to final frame");
+                setAnimationCompleted(true);
             }
-        },
+            
+            // Only animate if not completed or if scrolling forward
+            if (!animationCompleted || self.direction === 1) {
+                console.log(`Animation progress: frame ${frameIndex + 1}/${totalFrames} (${((frameIndex + 1) / totalFrames * 100).toFixed(1)}%)`);
+                if (frameIndex !== currentFrameRef.current) {
+                    currentFrameRef.current = frameIndex;
+                    requestAnimationFrame(() => drawFrame(frameIndex));
+                }
+            } else {
+                // Keep showing final frame when scrolling back up after completion
+                if (currentFrameRef.current !== totalFrames - 1) {
+                    currentFrameRef.current = totalFrames - 1;
+                    requestAnimationFrame(() => drawFrame(totalFrames - 1));
+                }
+            }
+        }
     });
 
     return () => {
-      tl.scrollTrigger?.kill();
-      tl.kill();
+      st.kill();
     };
-  }, [isLoading, totalFrames, drawFrame]);
+  }, [isLoading, totalFrames, drawFrame, animationCompleted]);
 
   useEffect(() => {
     loadFrames();
@@ -188,7 +202,9 @@ const FrameSequencePlayer = ({
   return (
     <div 
       ref={containerRef}
-      className={`relative w-full aspect-video max-w-[1280px] mx-auto flex items-center justify-center ${className}`}
+      className={`relative w-full mx-auto flex items-center justify-center ${
+        animationCompleted ? 'aspect-video max-w-[1280px]' : 'aspect-video max-w-[1280px]'
+      } ${className}`}
     >
       <canvas 
         ref={canvasRef}
