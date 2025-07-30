@@ -49,13 +49,14 @@ const FrameSequencePlayer = ({
             frames[i] = img;
             loadedCount++;
             setLoadedFrames(loadedCount);
+            console.log(`Loaded frame ${i + 1}/${totalFrames}`);
             if (loadedCount === initialBatch) {
               setIsLoading(false);
             }
             resolve();
           };
           img.onerror = () => {
-            console.warn(`Failed to load frame ${i + 1}`);
+            console.warn(`Failed to load frame ${i + 1}/${totalFrames}`);
             reject();
           };
           img.src = getFrameUrl(i + 1);
@@ -66,6 +67,7 @@ const FrameSequencePlayer = ({
     };
 
     try {
+      console.log(`Starting to load ${totalFrames} frames...`);
       await loadBatch(0, initialBatch);
       if (initialBatch < totalFrames) {
         const remainingBatchSize = 10;
@@ -150,7 +152,7 @@ const FrameSequencePlayer = ({
         scrollTrigger: {
             trigger: containerRef.current,
             start: "top 150px", // Start 150px from top for sticky header
-            end: "+=2000", // Pin for a 2000px scroll duration
+            end: "+=3500", // Increased scroll duration for 212 frames
             scrub: 0.5,
             pin: true,
             anticipatePin: 1,
@@ -163,6 +165,7 @@ const FrameSequencePlayer = ({
         ease: "none",
         onUpdate: () => {
             const frameIndex = Math.round(animation.frame);
+            console.log(`Animation progress: frame ${frameIndex + 1}/${totalFrames} (${((frameIndex + 1) / totalFrames * 100).toFixed(1)}%)`);
             if (frameIndex !== currentFrameRef.current) {
                 currentFrameRef.current = frameIndex;
                 requestAnimationFrame(() => drawFrame(frameIndex));
