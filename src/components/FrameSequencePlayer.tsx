@@ -152,8 +152,8 @@ const FrameSequencePlayer = ({
         scrollTrigger: {
             trigger: containerRef.current,
             start: "top 150px", // Start 150px from top for sticky header
-            end: "+=3500", // Increased scroll duration for 212 frames
-            scrub: 0.5,
+            end: "+=6000", // Much longer scroll distance for slower playback
+            scrub: 1, // Slower, smoother scrub response
             pin: true,
             anticipatePin: 1,
         }
