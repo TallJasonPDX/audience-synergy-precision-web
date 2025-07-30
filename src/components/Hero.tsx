@@ -99,7 +99,7 @@ const Hero = () => {
           
           {/* FrameSequencePlayer fills the h-screen container */}
           <FrameSequencePlayer
-            totalFrames={212}
+            totalFrames={120}
             frameBaseName="frame_"
             bucketName="frames"
             className="relative z-10"
