@@ -171,13 +171,21 @@ const FrameSequencePlayer = ({
       
       if (!canvas || !container) return;
       
-      const rect = container.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
       
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      canvas.style.width = `${rect.width}px`;
-      canvas.style.height = `${rect.height}px`;
+      // Calculate responsive dimensions
+      const maxWidth = Math.min(1280, containerRect.width);
+      const calculatedHeight = (maxWidth * 720) / 1280; // Maintain 1280:720 aspect ratio
+      const height = Math.min(calculatedHeight, 720);
+      
+      // Set canvas display size
+      canvas.style.width = `${maxWidth}px`;
+      canvas.style.height = `${height}px`;
+      
+      // Set canvas internal dimensions for crisp rendering
+      canvas.width = maxWidth * dpr;
+      canvas.height = height * dpr;
       
       const ctx = canvas.getContext('2d');
       if (ctx) {
@@ -208,35 +216,29 @@ const FrameSequencePlayer = ({
     >
       {/* Canvas container respecting native image dimensions */}
       <div className="w-full h-full flex items-center justify-center">
-        <div className="relative w-full h-full max-w-[1280px] mx-auto">
-          <canvas 
-            ref={canvasRef}
-            className="w-full h-auto"
-            style={{ 
-              maxWidth: '1280px',
-              aspectRatio: '1280/720'
-            }}
-          />
-          
-          {/* Loading indicator */}
-          {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-              <div className="text-center text-white">
-                <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
-                <div className="text-sm">
-                  Loading frames... {loadedFrames}/{Math.min(30, totalFrames)}
-                </div>
-                <div className="w-48 h-1 bg-white/20 rounded-full mt-2 mx-auto overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-primary transition-all duration-300 ease-out"
-                    style={{ width: `${(loadedFrames / Math.min(30, totalFrames)) * 100}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        <canvas 
+          ref={canvasRef}
+          className="block"
+        />
       </div>
+          
+      {/* Loading indicator */}
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="text-center text-white">
+            <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="text-sm">
+              Loading frames... {loadedFrames}/{Math.min(30, totalFrames)}
+            </div>
+            <div className="w-48 h-1 bg-white/20 rounded-full mt-2 mx-auto overflow-hidden">
+              <div 
+                className="h-full bg-gradient-primary transition-all duration-300 ease-out"
+                style={{ width: `${(loadedFrames / Math.min(30, totalFrames)) * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
