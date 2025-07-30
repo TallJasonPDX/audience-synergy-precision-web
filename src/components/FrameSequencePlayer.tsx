@@ -92,7 +92,7 @@ const FrameSequencePlayer = ({
     framesRef.current = frames;
   }, [totalFrames, getFrameUrl]);
 
-  // Draw frame to canvas
+  // Draw frame to canvas with proper aspect ratio fitting
   const drawFrame = useCallback((frameIndex: number) => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
@@ -103,8 +103,25 @@ const FrameSequencePlayer = ({
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw frame to fill canvas completely
-    ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+    // Calculate scaling to fit the entire image while maintaining aspect ratio
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+    const frameWidth = 1280; // Known frame width
+    const frameHeight = 720; // Known frame height
+    
+    // Calculate scale to fit the entire image
+    const scaleX = canvasWidth / frameWidth;
+    const scaleY = canvasHeight / frameHeight;
+    const scale = Math.min(scaleX, scaleY);
+    
+    // Calculate centered position
+    const scaledWidth = frameWidth * scale;
+    const scaledHeight = frameHeight * scale;
+    const x = (canvasWidth - scaledWidth) / 2;
+    const y = (canvasHeight - scaledHeight) / 2;
+    
+    // Draw frame with proper scaling and centering
+    ctx.drawImage(frame, x, y, scaledWidth, scaledHeight);
   }, []);
 
   // Set up scroll animation
@@ -113,26 +130,17 @@ const FrameSequencePlayer = ({
 
     const container = containerRef.current;
     let animationId: number;
-    let hasCompleted = false;
 
     const scrollTrigger = ScrollTrigger.create({
       trigger: container,
-      start: "center bottom",
-      end: "+=200vh",
+      start: "top center",
+      end: "bottom center",
       pin: true,
-      scrub: 1,
+      scrub: 0.5,
+      anticipatePin: 1,
       onUpdate: (self) => {
         if (animationId) {
           cancelAnimationFrame(animationId);
-        }
-        
-        // Only animate forward, don't reverse once completed
-        if (self.progress === 1) {
-          hasCompleted = true;
-        }
-        
-        if (hasCompleted && self.progress < 1) {
-          return; // Don't reverse animation once completed
         }
         
         animationId = requestAnimationFrame(() => {
@@ -147,6 +155,13 @@ const FrameSequencePlayer = ({
             drawFrame(frameIndex);
           }
         });
+      },
+      onComplete: () => {
+        // Ensure we show the last frame when complete
+        if (framesRef.current[totalFrames - 1]) {
+          currentFrameRef.current = totalFrames - 1;
+          drawFrame(totalFrames - 1);
+        }
       }
     });
 
@@ -174,18 +189,29 @@ const FrameSequencePlayer = ({
       const containerRect = container.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
       
-      // Calculate responsive dimensions
+      // Calculate responsive dimensions maintaining 1280:720 aspect ratio
       const maxWidth = Math.min(1280, containerRect.width);
-      const calculatedHeight = (maxWidth * 720) / 1280; // Maintain 1280:720 aspect ratio
-      const height = Math.min(calculatedHeight, 720);
+      const aspectRatio = 1280 / 720;
+      const calculatedHeight = maxWidth / aspectRatio;
+      const maxHeight = Math.min(720, window.innerHeight * 0.8);
+      
+      let finalWidth, finalHeight;
+      
+      if (calculatedHeight <= maxHeight) {
+        finalWidth = maxWidth;
+        finalHeight = calculatedHeight;
+      } else {
+        finalHeight = maxHeight;
+        finalWidth = finalHeight * aspectRatio;
+      }
       
       // Set canvas display size
-      canvas.style.width = `${maxWidth}px`;
-      canvas.style.height = `${height}px`;
+      canvas.style.width = `${finalWidth}px`;
+      canvas.style.height = `${finalHeight}px`;
       
       // Set canvas internal dimensions for crisp rendering
-      canvas.width = maxWidth * dpr;
-      canvas.height = height * dpr;
+      canvas.width = finalWidth * dpr;
+      canvas.height = finalHeight * dpr;
       
       const ctx = canvas.getContext('2d');
       if (ctx) {
@@ -212,13 +238,13 @@ const FrameSequencePlayer = ({
   return (
     <div 
       ref={containerRef}
-      className={`relative w-full h-[720px] ${className}`}
+      className={`relative w-full min-h-screen flex items-center justify-center ${className}`}
     >
-      {/* Canvas container respecting native image dimensions */}
+      {/* Canvas container */}
       <div className="w-full h-full flex items-center justify-center">
         <canvas 
           ref={canvasRef}
-          className="block"
+          className="block max-w-full max-h-full"
         />
       </div>
           
