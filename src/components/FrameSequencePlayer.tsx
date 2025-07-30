@@ -9,7 +9,7 @@ gsap.registerPlugin(ScrollTrigger);
 interface FrameSequencePlayerProps {
   totalFrames: number;
   frameBaseName: string;
-  bucketName: string;
+  bucketName:string;
   className?: string;
 }
 
@@ -26,229 +26,172 @@ const FrameSequencePlayer = ({
   const framesRef = useRef<HTMLImageElement[]>([]);
   const currentFrameRef = useRef(0);
 
-  // Get frame URL with proper formatting
+  // Get frame URL with proper formatting (no changes needed)
   const getFrameUrl = useCallback((frameNumber: number) => {
     const paddedNumber = frameNumber.toString().padStart(3, '0');
     const framePath = `${frameBaseName}${paddedNumber}.png`;
-    return getBlogImageUrl(framePath, 'frames');
-  }, [frameBaseName]);
-
-  // Progressive frame loading
+    return getBlogImageUrl(framePath, bucketName);
+  }, [frameBaseName, bucketName]);
+  
+  // Progressive frame loading (no changes needed)
   const loadFrames = useCallback(async () => {
     const frames: HTMLImageElement[] = [];
     let loadedCount = 0;
-
-    // Load frames in batches for better UX
-    const batchSize = 10;
     const initialBatch = 30;
 
     const loadBatch = async (start: number, end: number) => {
       const promises = [];
-      
       for (let i = start; i < Math.min(end, totalFrames); i++) {
         const promise = new Promise<void>((resolve, reject) => {
           const img = new Image();
           img.crossOrigin = "anonymous";
-          
           img.onload = () => {
             frames[i] = img;
             loadedCount++;
             setLoadedFrames(loadedCount);
-            
-            // Start animation after first batch is loaded
             if (loadedCount === initialBatch) {
               setIsLoading(false);
             }
             resolve();
           };
-          
           img.onerror = () => {
             console.warn(`Failed to load frame ${i + 1}`);
             reject();
           };
-          
           img.src = getFrameUrl(i + 1);
         });
-        
         promises.push(promise);
       }
-      
       await Promise.allSettled(promises);
     };
 
     try {
-      // Load initial batch first
       await loadBatch(0, initialBatch);
-      
-      // Load remaining frames in background
-      for (let i = initialBatch; i < totalFrames; i += batchSize) {
-        setTimeout(() => loadBatch(i, i + batchSize), (i - initialBatch) * 50);
+      if (initialBatch < totalFrames) {
+        const remainingBatchSize = 10;
+        for (let i = initialBatch; i < totalFrames; i += remainingBatchSize) {
+           setTimeout(() => loadBatch(i, i + remainingBatchSize), (i - initialBatch) * 20);
+        }
       }
-      
     } catch (error) {
       console.error("Error loading frames:", error);
     }
-
     framesRef.current = frames;
   }, [totalFrames, getFrameUrl]);
 
-  // Draw frame to canvas with proper aspect ratio fitting
+  // FIXED: This logic now correctly "contains" the image within the canvas bounds.
   const drawFrame = useCallback((frameIndex: number) => {
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
     const frame = framesRef.current[frameIndex];
-    
-    if (!canvas || !ctx || !frame) return;
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Calculate scaling to fit the entire image while maintaining aspect ratio
+    if (!ctx || !frame || !frame.naturalWidth) return;
+
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
-    const frameWidth = 1280; // Known frame width
-    const frameHeight = 720; // Known frame height
     
-    // Calculate scale to fit the entire image
-    const scaleX = canvasWidth / frameWidth;
-    const scaleY = canvasHeight / frameHeight;
-    const scale = Math.min(scaleX, scaleY);
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+    const frameWidth = frame.naturalWidth;
+    const frameHeight = frame.naturalHeight;
     
-    // Calculate centered position
-    const scaledWidth = frameWidth * scale;
-    const scaledHeight = frameHeight * scale;
-    const x = (canvasWidth - scaledWidth) / 2;
-    const y = (canvasHeight - scaledHeight) / 2;
+    const canvasRatio = canvasWidth / canvasHeight;
+    const frameRatio = frameWidth / frameHeight;
+
+    let drawWidth = canvasWidth;
+    let drawHeight = canvasHeight;
+    let x = 0;
+    let y = 0;
+
+    if (frameRatio > canvasRatio) {
+      drawHeight = canvasWidth / frameRatio;
+      y = (canvasHeight - drawHeight) / 2;
+    } else {
+      drawWidth = canvasHeight * frameRatio;
+      x = (canvasWidth - drawWidth) / 2;
+    }
     
-    // Draw frame with proper scaling and centering
-    ctx.drawImage(frame, x, y, scaledWidth, scaledHeight);
+    ctx.drawImage(frame, x, y, drawWidth, drawHeight);
   }, []);
 
-  // Set up scroll animation
-  useEffect(() => {
-    if (isLoading || !containerRef.current || !canvasRef.current) return;
-
+  // FIXED: The resize handler now properly scales the canvas and redraws the frame.
+  const handleResize = useCallback(() => {
+    const canvas = canvasRef.current;
     const container = containerRef.current;
-    let animationId: number;
+    if (!canvas || !container) return;
+    
+    const dpr = window.devicePixelRatio || 1;
+    const rect = container.getBoundingClientRect();
+    
+    canvas.style.width = `${rect.width}px`;
+    canvas.style.height = `${rect.height}px`;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    
+    if (framesRef.current.length > 0 && framesRef.current[currentFrameRef.current]) {
+      drawFrame(currentFrameRef.current);
+    }
+  }, [drawFrame]);
 
-    const scrollTrigger = ScrollTrigger.create({
-      trigger: container,
-      start: "top center",
-      end: "bottom center",
-      pin: true,
-      scrub: 0.5,
-      anticipatePin: 1,
-      onUpdate: (self) => {
-        if (animationId) {
-          cancelAnimationFrame(animationId);
+  // Initialize and clean up the resize listener.
+  useEffect(() => {
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [handleResize]);
+  
+  // FIXED: The GSAP ScrollTrigger now uses a more reliable tween on a proxy object.
+  // It pins the correctly-sized container for a smoother effect.
+  useEffect(() => {
+    if (isLoading || !containerRef.current) return;
+
+    const animation = { frame: 0 };
+    const tl = gsap.timeline({
+        scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top top",
+            end: "+=2000", // Pin for a 2000px scroll duration
+            scrub: 0.5,
+            pin: true,
+            anticipatePin: 1,
         }
-        
-        animationId = requestAnimationFrame(() => {
-          const progress = self.progress;
-          const frameIndex = Math.min(
-            Math.floor(progress * (totalFrames - 1)),
-            totalFrames - 1
-          );
-          
-          if (frameIndex !== currentFrameRef.current && framesRef.current[frameIndex]) {
-            currentFrameRef.current = frameIndex;
-            drawFrame(frameIndex);
-          }
-        });
-      },
-      onComplete: () => {
-        // Ensure we show the last frame when complete
-        if (framesRef.current[totalFrames - 1]) {
-          currentFrameRef.current = totalFrames - 1;
-          drawFrame(totalFrames - 1);
-        }
-      }
+    });
+    
+    tl.to(animation, {
+        frame: totalFrames - 1,
+        snap: "frame",
+        ease: "none",
+        onUpdate: () => {
+            const frameIndex = Math.round(animation.frame);
+            if (frameIndex !== currentFrameRef.current) {
+                currentFrameRef.current = frameIndex;
+                requestAnimationFrame(() => drawFrame(frameIndex));
+            }
+        },
     });
 
-    // Draw initial frame
-    if (framesRef.current[0]) {
-      drawFrame(0);
-    }
-
     return () => {
-      scrollTrigger.kill();
-      if (animationId) {
-        cancelAnimationFrame(animationId);
-      }
+      tl.scrollTrigger?.kill();
+      tl.kill();
     };
   }, [isLoading, totalFrames, drawFrame]);
 
-  // Handle canvas resize
-  useEffect(() => {
-    const handleResize = () => {
-      const canvas = canvasRef.current;
-      const container = containerRef.current;
-      
-      if (!canvas || !container) return;
-      
-      const containerRect = container.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      
-      // Calculate responsive dimensions maintaining 1280:720 aspect ratio
-      const maxWidth = Math.min(1280, containerRect.width);
-      const aspectRatio = 1280 / 720;
-      const calculatedHeight = maxWidth / aspectRatio;
-      const maxHeight = Math.min(720, window.innerHeight * 0.8);
-      
-      let finalWidth, finalHeight;
-      
-      if (calculatedHeight <= maxHeight) {
-        finalWidth = maxWidth;
-        finalHeight = calculatedHeight;
-      } else {
-        finalHeight = maxHeight;
-        finalWidth = finalHeight * aspectRatio;
-      }
-      
-      // Set canvas display size
-      canvas.style.width = `${finalWidth}px`;
-      canvas.style.height = `${finalHeight}px`;
-      
-      // Set canvas internal dimensions for crisp rendering
-      canvas.width = finalWidth * dpr;
-      canvas.height = finalHeight * dpr;
-      
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.scale(dpr, dpr);
-      }
-      
-      // Redraw current frame
-      if (framesRef.current[currentFrameRef.current]) {
-        drawFrame(currentFrameRef.current);
-      }
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    
-    return () => window.removeEventListener('resize', handleResize);
-  }, [drawFrame]);
-
-  // Start loading frames
   useEffect(() => {
     loadFrames();
   }, [loadFrames]);
 
+  // FIXED: The root element no longer has a minimum height, allowing the parent
+  // to control its size, which prevents the layout from breaking.
   return (
     <div 
       ref={containerRef}
-      className={`relative w-full min-h-screen flex items-center justify-center ${className}`}
+      className={`relative w-full h-full flex items-center justify-center ${className}`}
     >
-      {/* Canvas container */}
-      <div className="w-full h-full flex items-center justify-center">
-        <canvas 
-          ref={canvasRef}
-          className="block max-w-full max-h-full"
-        />
-      </div>
-          
-      {/* Loading indicator */}
+      <canvas 
+        ref={canvasRef}
+        className="w-full h-full"
+      />
+      
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="text-center text-white">
