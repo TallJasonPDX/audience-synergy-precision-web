@@ -129,15 +129,25 @@ const FrameSequencePlayer = ({
 
     const container = containerRef.current;
     let animationId: number;
+    let hasCompleted = false;
 
     const scrollTrigger = ScrollTrigger.create({
       trigger: container,
-      start: "top bottom",
+      start: "bottom bottom",
       end: "bottom top",
       scrub: 1,
       onUpdate: (self) => {
         if (animationId) {
           cancelAnimationFrame(animationId);
+        }
+        
+        // Only animate forward, don't reverse once completed
+        if (self.progress === 1) {
+          hasCompleted = true;
+        }
+        
+        if (hasCompleted && self.progress < 1) {
+          return; // Don't reverse animation once completed
         }
         
         animationId = requestAnimationFrame(() => {
@@ -209,18 +219,17 @@ const FrameSequencePlayer = ({
   return (
     <div 
       ref={containerRef}
-      className={`relative w-full ${className}`}
-      style={{ height: '400vh' }} // 4 viewport heights for scroll distance
+      className={`relative w-full h-[720px] md:h-[720px] ${className}`}
     >
-      {/* Sticky canvas container */}
-      <div className="sticky top-0 w-full h-screen flex items-center justify-center">
+      {/* Canvas container that fills the exact 720px height */}
+      <div className="w-full h-full flex items-center justify-center">
         <div className="relative w-full h-full max-w-7xl mx-auto">
           <canvas 
             ref={canvasRef}
-            className="w-full h-full object-contain"
+            className="w-full h-full"
             style={{ 
-              maxHeight: '80vh',
-              aspectRatio: '16/9'
+              aspectRatio: '16/9',
+              objectFit: 'contain'
             }}
           />
           
