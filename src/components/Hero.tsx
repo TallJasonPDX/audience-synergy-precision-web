@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play, Target } from "lucide-react";
 import heroImage from "@/assets/hero-healthcare-data.jpg";
+import FrameSequencePlayer from "./FrameSequencePlayer";
 
 const Hero = () => {
   return (
@@ -72,14 +73,14 @@ const Hero = () => {
           </div>
         </div>
 
-        {/* Reserved space for future interactive element */}
+        {/* Scroll-triggered frame sequence animation */}
         <div className="mt-16 w-screen relative left-1/2 right-1/2 ml-[-50vw] mr-[-50vw]">
           {/* Smooth transition gradient */}
           <div className="h-24 bg-gradient-to-b from-background via-background/80 to-black"></div>
           
           <div className="bg-black relative overflow-hidden">
             {/* Enhanced pattern overlay similar to accent sections */}
-            <div className="absolute inset-0 opacity-20">
+            <div className="absolute inset-0 opacity-20 pointer-events-none">
               <div className="absolute inset-0" style={{
                 backgroundImage: `
                   radial-gradient(circle at 25% 25%, rgba(255,255,255,0.15) 2px, transparent 2px),
@@ -91,17 +92,16 @@ const Hero = () => {
             </div>
             
             {/* Subtle accent glow in corners */}
-            <div className="absolute top-0 left-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl -translate-x-48 -translate-y-48"></div>
-            <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl translate-x-48 translate-y-48"></div>
+            <div className="absolute top-0 left-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl -translate-x-48 -translate-y-48 pointer-events-none"></div>
+            <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl translate-x-48 translate-y-48 pointer-events-none"></div>
             
-            <div className="container mx-auto px-6 py-24 relative">
-              <div className="text-center mb-12">
-                <div className="text-white/60 text-sm mb-4">Interactive Data Visualization</div>
-                <div className="h-64 flex items-center justify-center">
-                  <span className="text-white/40 text-lg">Reserved for 3D Funnel Visualization</span>
-                </div>
-              </div>
-            </div>
+            {/* Frame sequence animation */}
+            <FrameSequencePlayer
+              totalFrames={120}
+              frameBaseName="frame_"
+              bucketName="frames"
+              className="relative z-10"
+            />
           </div>
           
           {/* Smooth transition gradient to next section */}
