@@ -573,9 +573,11 @@ function splat(x: number, y: number, dx: number, dy: number, color: [number, num
   if (uPoint) gl.uniform2f(uPoint, x / canvas.width, 1.0 - y / canvas.height);
   const uColor = splatProgram.uniforms["color"];
   if (uColor) gl.uniform3f(uColor, dx * config.SPLAT_FORCE, dy * config.SPLAT_FORCE, 1.0);
-  const uRadius = splatProgram.uniforms["radius"];
-  if (uRadius) gl.uniform1f(uRadius, correctRadius(aspectRatio) * config.SPLAT_RADIUS);
-  dbg("splat velocity", { x, y, dx, dy });
+const uRadius = splatProgram.uniforms["radius"];
+const r = correctRadius(aspectRatio);
+if (uRadius) gl.uniform1f(uRadius, r);
+dbg("splat radius", { aspectRatio, r });
+dbg("splat velocity", { x, y, dx, dy });
   blit(velocity.write.fbo);
   velocity.swap();
 
