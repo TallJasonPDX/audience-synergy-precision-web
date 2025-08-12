@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-
+import Hero from "@/components/Hero";
 import ValueProposition from "@/components/ValueProposition";
 import ServiceOptions from "@/components/ServiceOptions";
 import AudienceTypes from "@/components/AudienceTypes";
@@ -13,7 +13,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main>
-        {/* HomeHero placeholder — your component will be inserted here */}
+        <Hero />
         <ValueProposition />
         <ServiceOptions />
         <AudienceTypes />

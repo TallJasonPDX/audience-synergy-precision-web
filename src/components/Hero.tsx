@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play, Target } from "lucide-react";
 import heroImage from "@/assets/hero-healthcare-data.jpg";
-import FrameSequencePlayer from "./FrameSequencePlayer";
+
 
 const Hero = () => {
   return (
@@ -73,40 +73,6 @@ const Hero = () => {
           </div>
         </div>
 
-        {/* Scroll-triggered frame sequence animation */}
-        <div className="mt-16 w-screen relative left-1/2 right-1/2 ml-[-50vw] mr-[-50vw]">
-          {/* Smooth transition gradient */}
-          <div className="h-24 bg-gradient-to-b from-background via-background/80 to-black"></div>
-          
-          <div className="bg-black relative overflow-hidden">
-            {/* Enhanced pattern overlay similar to accent sections */}
-            <div className="absolute inset-0 opacity-20 pointer-events-none">
-              <div className="absolute inset-0" style={{
-                backgroundImage: `
-                  radial-gradient(circle at 25% 25%, rgba(255,255,255,0.15) 2px, transparent 2px),
-                  radial-gradient(circle at 75% 75%, rgba(255,255,255,0.08) 1px, transparent 1px),
-                  linear-gradient(45deg, transparent 48%, rgba(255,255,255,0.02) 49%, rgba(255,255,255,0.02) 51%, transparent 52%)
-                `,
-                backgroundSize: '80px 80px, 40px 40px, 120px 120px'
-              }}></div>
-            </div>
-            
-            {/* Subtle accent glow in corners */}
-            <div className="absolute top-0 left-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl -translate-x-48 -translate-y-48 pointer-events-none"></div>
-            <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl translate-x-48 translate-y-48 pointer-events-none"></div>
-            
-            {/* Frame sequence animation */}
-            <FrameSequencePlayer
-              totalFrames={212}
-              frameBaseName="frame_"
-              bucketName="frames"
-              className="relative z-10"
-            />
-          </div>
-          
-          {/* Smooth transition gradient to next section */}
-          <div className="h-24 bg-gradient-to-b from-black via-black/80 to-background"></div>
-        </div>
       </div>
     </section>
   );
