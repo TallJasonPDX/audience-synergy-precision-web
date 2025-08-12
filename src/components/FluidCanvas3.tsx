@@ -12,6 +12,7 @@ import React, { useEffect, useRef } from "react";
 interface FluidCanvasProps {
   width?: string;
   height?: string;
+  showMask?: boolean;
 }
 
 type GL = WebGL2RenderingContext | WebGLRenderingContext;
@@ -41,7 +42,7 @@ interface Extensions {
   supportLinearFiltering: boolean;
 }
 
-export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCanvasProps) {
+export default function FluidCanvas({ width = "100%", height = "100%", showMask = false }: FluidCanvasProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -157,10 +158,15 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
       const ext: Extensions = {
         formatRGBA: getSupportedFormat(gl, isWebGL2 ? (gl as WebGL2RenderingContext).RGBA16F : gl.RGBA, gl.RGBA, isWebGL2 ? (gl as WebGL2RenderingContext).HALF_FLOAT : (halfFloat?.HALF_FLOAT_OES ?? gl.UNSIGNED_BYTE), supportLinearFiltering),
         formatRG: getSupportedFormat(gl, isWebGL2 ? (gl as WebGL2RenderingContext).RG16F : gl.RGBA, isWebGL2 ? (gl as WebGL2RenderingContext).RG : gl.RGBA, isWebGL2 ? (gl as WebGL2RenderingContext).HALF_FLOAT : (halfFloat?.HALF_FLOAT_OES ?? gl.UNSIGNED_BYTE), supportLinearFiltering),
-        formatR: getSupportedFormat(gl, isWebGL2 ? (gl as WebGL2RenderingContext).R16F : gl.ALPHA, isWebGL2 ? (gl as WebGL2RenderingContext).RED : gl.ALPHA, isWebGL2 ? (gl as WebGL2RenderingContext).HALF_FLOAT : (halfFloat?.HALF_FLOAT_OES ?? gl.UNSIGNED_BYTE), supportLinearFiltering),
+        formatR: getSupportedFormat(gl, isWebGL2 ? (gl as WebGL2RenderingContext).R16F : gl.RGBA, isWebGL2 ? (gl as WebGL2RenderingContext).RED : gl.RGBA, isWebGL2 ? (gl as WebGL2RenderingContext).HALF_FLOAT : (halfFloat?.HALF_FLOAT_OES ?? gl.UNSIGNED_BYTE), supportLinearFiltering),
         halfFloatTexType: isWebGL2 ? (gl as WebGL2RenderingContext).HALF_FLOAT : (halfFloat?.HALF_FLOAT_OES ?? gl.UNSIGNED_BYTE),
         supportLinearFiltering,
       };
+
+      // In WebGL1, prefer RGBA for single-channel targets so we can reliably sample from .x
+      if (!isWebGL2) {
+        ext.formatR = { internalFormat: gl.RGBA, format: gl.RGBA } as any;
+      }
 
       gl.clearColor(0, 0, 0, 1);
       gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
@@ -627,7 +633,7 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
         rafRef.current = requestAnimationFrame(startLoopWhenReady);
         return;
       }
-      multipleSplats(3);
+      multipleSplats(10);
       rafRef.current = requestAnimationFrame(frame);
     };
     if (!sized) {
