@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play, Target } from "lucide-react";
 import heroImage from "@/assets/hero-healthcare-data.jpg";
-import FluidCanvas from "./FluidCanvas";
+import FluidCanvas2 from "./FluidCanvas2";
 
 
 const Hero = () => {
@@ -77,7 +77,7 @@ const Hero = () => {
         {/* Fluid Canvas section */}
         <div className="mt-16">
           <div className="w-full h-[400px] overflow-hidden rounded-xl">
-            <FluidCanvas width="100%" height="400px" />
+            <FluidCanvas2 width="100%" height="400px" />
           </div>
         </div>
 
