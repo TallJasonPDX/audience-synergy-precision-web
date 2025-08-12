@@ -1,5 +1,5 @@
 import React from "react";
-import FluidCanvas from "./FluidCanvas.jsx";
+import FluidCanvas from "./FluidCanvas";
 
 interface FluidCanvas2Props {
   width?: string;
