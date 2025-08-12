@@ -128,51 +128,87 @@ export default function FluidCanvas({ width = "100%", height = "100%", showMask 
       }
     }
 
-    function getWebGLContext(canvas: HTMLCanvasElement): { gl: GL | null; ext: Extensions; isWebGL2: boolean } {
-      const params: WebGLContextAttributes = {
-        alpha: true,
-        depth: false,
-        stencil: false,
-        antialias: false,
-        premultipliedAlpha: true,
-        preserveDrawingBuffer: false,
-      };
-      // Try WebGL2 first
-      let gl = (canvas.getContext("webgl2", params) as WebGL2RenderingContext | null) as GL | null;
-      const isWebGL2 = !!gl && (gl as WebGL2RenderingContext).TEXTURE_BINDING_3D !== undefined;
-      if (!isWebGL2) {
-        gl = (canvas.getContext("webgl", params) || canvas.getContext("experimental-webgl", params)) as GL | null;
-      }
-      if (!gl) return { gl: null, ext: defaultExt(), isWebGL2: false };
+function getWebGLContext(canvas: HTMLCanvasElement): { gl: GL | null; ext: Extensions; isWebGL2: boolean } {
+  const params: WebGLContextAttributes = {
+    alpha: true,
+    depth: false,
+    stencil: false,
+    antialias: false,
+    premultipliedAlpha: true,
+    preserveDrawingBuffer: false,
+  };
+  // Try WebGL2 first
+  let gl = (canvas.getContext("webgl2", params) as WebGL2RenderingContext | null) as GL | null;
+  const isWebGL2 = !!gl && (gl as WebGL2RenderingContext).TEXTURE_BINDING_3D !== undefined;
+  if (!isWebGL2) {
+    gl = (canvas.getContext("webgl", params) || canvas.getContext("experimental-webgl", params)) as GL | null;
+  }
+  if (!gl) return { gl: null, ext: defaultExt(), isWebGL2: false };
 
-      let halfFloat: any = null;
-      let supportLinearFiltering = false;
-      if (isWebGL2) {
-        (gl as WebGL2RenderingContext).getExtension("EXT_color_buffer_float");
-        supportLinearFiltering = !!gl.getExtension("OES_texture_float_linear");
-      } else {
-        halfFloat = gl.getExtension("OES_texture_half_float");
-        supportLinearFiltering = !!gl.getExtension("OES_texture_half_float_linear");
-      }
+  // Texture/format capabilities
+  let typeForRenderTargets: number;
+  let filteringOK = true; // Linear filtering for our chosen type
 
-      const ext: Extensions = {
-        formatRGBA: getSupportedFormat(gl, isWebGL2 ? (gl as WebGL2RenderingContext).RGBA16F : gl.RGBA, gl.RGBA, isWebGL2 ? (gl as WebGL2RenderingContext).HALF_FLOAT : (halfFloat?.HALF_FLOAT_OES ?? gl.UNSIGNED_BYTE), supportLinearFiltering),
-        formatRG: getSupportedFormat(gl, isWebGL2 ? (gl as WebGL2RenderingContext).RG16F : gl.RGBA, isWebGL2 ? (gl as WebGL2RenderingContext).RG : gl.RGBA, isWebGL2 ? (gl as WebGL2RenderingContext).HALF_FLOAT : (halfFloat?.HALF_FLOAT_OES ?? gl.UNSIGNED_BYTE), supportLinearFiltering),
-        formatR: getSupportedFormat(gl, isWebGL2 ? (gl as WebGL2RenderingContext).R16F : gl.RGBA, isWebGL2 ? (gl as WebGL2RenderingContext).RED : gl.RGBA, isWebGL2 ? (gl as WebGL2RenderingContext).HALF_FLOAT : (halfFloat?.HALF_FLOAT_OES ?? gl.UNSIGNED_BYTE), supportLinearFiltering),
-        halfFloatTexType: isWebGL2 ? (gl as WebGL2RenderingContext).HALF_FLOAT : (halfFloat?.HALF_FLOAT_OES ?? gl.UNSIGNED_BYTE),
-        supportLinearFiltering,
-      };
+  if (isWebGL2) {
+    // WebGL2 guarantees rendering to HALF_FLOAT RGBA/RG/R formats
+    // and linear filtering support for float/half-float textures
+    (gl as WebGL2RenderingContext).getExtension("EXT_color_buffer_float");
+    typeForRenderTargets = (gl as WebGL2RenderingContext).HALF_FLOAT;
+    filteringOK = true;
+  } else {
+    // WebGL1: need BOTH OES_texture_half_float and EXT_color_buffer_half_float
+    const halfFloat = gl.getExtension("OES_texture_half_float") as any;
+    const colorBufferHalf = gl.getExtension("EXT_color_buffer_half_float");
+    const halfLinear = gl.getExtension("OES_texture_half_float_linear");
 
-      // In WebGL1, prefer RGBA for single-channel targets so we can reliably sample from .x
-      if (!isWebGL2) {
-        ext.formatR = { internalFormat: gl.RGBA, format: gl.RGBA } as any;
-      }
+    const canRenderHalfFloat = !!halfFloat && !!colorBufferHalf;
 
-      gl.clearColor(0, 0, 0, 1);
-      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-
-      return { gl, ext, isWebGL2 };
+    if (canRenderHalfFloat) {
+      typeForRenderTargets = halfFloat.HALF_FLOAT_OES;
+      filteringOK = !!halfLinear; // linear only if the linear extension is present
+    } else {
+      // Fallback to UNSIGNED_BYTE to ensure framebuffer completeness
+      typeForRenderTargets = gl.UNSIGNED_BYTE;
+      filteringOK = true; // byte textures support linear filtering
     }
+  }
+
+  const ext: Extensions = {
+    formatRGBA: getSupportedFormat(
+      gl,
+      isWebGL2 ? (gl as WebGL2RenderingContext).RGBA16F : gl.RGBA,
+      gl.RGBA,
+      typeForRenderTargets,
+      filteringOK
+    ),
+    formatRG: getSupportedFormat(
+      gl,
+      isWebGL2 ? (gl as WebGL2RenderingContext).RG16F : gl.RGBA,
+      isWebGL2 ? (gl as WebGL2RenderingContext).RG : gl.RGBA,
+      typeForRenderTargets,
+      filteringOK
+    ),
+    formatR: getSupportedFormat(
+      gl,
+      isWebGL2 ? (gl as WebGL2RenderingContext).R16F : gl.RGBA,
+      isWebGL2 ? (gl as WebGL2RenderingContext).RED : gl.RGBA,
+      typeForRenderTargets,
+      filteringOK
+    ),
+    halfFloatTexType: typeForRenderTargets,
+    supportLinearFiltering: filteringOK,
+  };
+
+  // In WebGL1, prefer RGBA for single-channel targets so we can reliably sample from .x
+  if (!isWebGL2) {
+    ext.formatR = { internalFormat: gl.RGBA, format: gl.RGBA } as any;
+  }
+
+  gl.clearColor(0, 0, 0, 1);
+  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+  return { gl, ext, isWebGL2 };
+}
 
     function defaultExt(): Extensions {
       return {
@@ -675,7 +711,7 @@ export default function FluidCanvas({ width = "100%", height = "100%", showMask 
       <svg
         viewBox="0 0 1200 400"
         preserveAspectRatio="xMidYMid meet"
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1 }}
         aria-hidden="true"
       >
         <defs>
@@ -712,7 +748,7 @@ export default function FluidCanvas({ width = "100%", height = "100%", showMask 
       {/* Canvas under the overlay */}
       <canvas
         ref={canvasRef}
-        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", background: "#000" }}
+        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", background: "#000", zIndex: 0 }}
       />
     </div>
   );
