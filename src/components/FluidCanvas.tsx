@@ -107,6 +107,8 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
         if (!vertexShader || !fragmentShader) throw new Error("Shader creation failed");
         gl.attachShader(this.program, vertexShader);
         gl.attachShader(this.program, fragmentShader);
+        // Ensure aPosition uses attribute location 0 to match our blit VAO
+        gl.bindAttribLocation(this.program, 0, "aPosition");
         gl.linkProgram(this.program);
         if (!gl.getProgramParameter(this.program, gl.LINK_STATUS))
           console.trace(gl.getProgramInfoLog(this.program));
@@ -540,12 +542,18 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
       gl.disable(gl.BLEND);
       curlProgram.bind();
       gl.uniform2f(curlProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
+      gl.activeTexture(gl.TEXTURE0 + (velocity.read as any)[2]);
+      gl.bindTexture(gl.TEXTURE_2D, (velocity.read as any)[0]);
       gl.uniform1i(curlProgram.uniforms.uVelocity, (velocity.read as any)[2]);
       blit(curl[1]);
 
       vorticityProgram.bind();
       gl.uniform2f(vorticityProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
+      gl.activeTexture(gl.TEXTURE0 + (velocity.read as any)[2]);
+      gl.bindTexture(gl.TEXTURE_2D, (velocity.read as any)[0]);
       gl.uniform1i(vorticityProgram.uniforms.uVelocity, (velocity.read as any)[2]);
+      gl.activeTexture(gl.TEXTURE0 + curl[2]);
+      gl.bindTexture(gl.TEXTURE_2D, curl[0]);
       gl.uniform1i(vorticityProgram.uniforms.uCurl, curl[2]);
       gl.uniform1f(vorticityProgram.uniforms.curl, config.CURL);
       gl.uniform1f(vorticityProgram.uniforms.dt, dt);
@@ -554,10 +562,14 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
 
       divergenceProgram.bind();
       gl.uniform2f(divergenceProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
+      gl.activeTexture(gl.TEXTURE0 + (velocity.read as any)[2]);
+      gl.bindTexture(gl.TEXTURE_2D, (velocity.read as any)[0]);
       gl.uniform1i(divergenceProgram.uniforms.uVelocity, (velocity.read as any)[2]);
       blit(divergence[1]);
 
       clearProgram.bind();
+      gl.activeTexture(gl.TEXTURE0 + (pressure.read as any)[2]);
+      gl.bindTexture(gl.TEXTURE_2D, (pressure.read as any)[0]);
       gl.uniform1i(clearProgram.uniforms.uTexture, (pressure.read as any)[2]);
       gl.uniform1f(clearProgram.uniforms.value, config.PRESSURE_DISSIPATION);
       blit(pressure.write[1]);
@@ -565,7 +577,11 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
 
       pressureProgram.bind();
       gl.uniform2f(pressureProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
+      gl.activeTexture(gl.TEXTURE0 + divergence[2]);
+      gl.bindTexture(gl.TEXTURE_2D, divergence[0]);
       gl.uniform1i(pressureProgram.uniforms.uDivergence, divergence[2]);
+      gl.activeTexture(gl.TEXTURE0 + (pressure.read as any)[2]);
+      gl.bindTexture(gl.TEXTURE_2D, (pressure.read as any)[0]);
       gl.uniform1i(pressureProgram.uniforms.uPressure, (pressure.read as any)[2]);
       for (let i = 0; i < config.PRESSURE_ITERATIONS; i++) {
         blit(pressure.write[1]);
@@ -574,13 +590,19 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
 
       gradSubtractProgram.bind();
       gl.uniform2f(gradSubtractProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
+      gl.activeTexture(gl.TEXTURE0 + (pressure.read as any)[2]);
+      gl.bindTexture(gl.TEXTURE_2D, (pressure.read as any)[0]);
       gl.uniform1i(gradSubtractProgram.uniforms.uPressure, (pressure.read as any)[2]);
+      gl.activeTexture(gl.TEXTURE0 + (velocity.read as any)[2]);
+      gl.bindTexture(gl.TEXTURE_2D, (velocity.read as any)[0]);
       gl.uniform1i(gradSubtractProgram.uniforms.uVelocity, (velocity.read as any)[2]);
       blit(velocity.write[1]);
       velocity.swap();
 
       advectionProgram.bind();
       gl.uniform2f(advectionProgram.uniforms.texelSize, 1.0 / textureWidth, 1.0 / textureHeight);
+      gl.activeTexture(gl.TEXTURE0 + (velocity.read as any)[2]);
+      gl.bindTexture(gl.TEXTURE_2D, (velocity.read as any)[0]);
       gl.uniform1i(advectionProgram.uniforms.uVelocity, (velocity.read as any)[2]);
       gl.uniform1i(advectionProgram.uniforms.uSource, (velocity.read as any)[2]);
       gl.uniform1f(advectionProgram.uniforms.dt, dt);
@@ -588,7 +610,11 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
       blit(velocity.write[1]);
       velocity.swap();
 
+      gl.activeTexture(gl.TEXTURE0 + (velocity.read as any)[2]);
+      gl.bindTexture(gl.TEXTURE_2D, (velocity.read as any)[0]);
       gl.uniform1i(advectionProgram.uniforms.uVelocity, (velocity.read as any)[2]);
+      gl.activeTexture(gl.TEXTURE0 + (density.read as any)[2]);
+      gl.bindTexture(gl.TEXTURE_2D, (density.read as any)[0]);
       gl.uniform1i(advectionProgram.uniforms.uSource, (density.read as any)[2]);
       gl.uniform1f(advectionProgram.uniforms.dissipation, config.DENSITY_DISSIPATION);
       blit(density.write[1]);
@@ -614,6 +640,8 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
       gl.viewport(0, 0, textureWidth, textureHeight);
 
       splatProgram.bind();
+      gl.activeTexture(gl.TEXTURE0 + (velocity.read as any)[2]);
+      gl.bindTexture(gl.TEXTURE_2D, (velocity.read as any)[0]);
       gl.uniform1i(splatProgram.uniforms.uTarget, (velocity.read as any)[2]);
       gl.uniform1f(splatProgram.uniforms.aspectRatio, canvas.width / canvas.height);
       gl.uniform2f(splatProgram.uniforms.point, x / canvas.width, 1.0 - y / canvas.height);
@@ -625,6 +653,8 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
       blit(velocity.write[1]);
       velocity.swap();
 
+      gl.activeTexture(gl.TEXTURE0 + (density.read as any)[2]);
+      gl.bindTexture(gl.TEXTURE_2D, (density.read as any)[0]);
       gl.uniform1i(splatProgram.uniforms.uTarget, (density.read as any)[2]);
       gl.uniform3f(splatProgram.uniforms.color, color[0], color[1], color[2]);
       blit(density.write[1]);
@@ -653,6 +683,8 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
     function drawDisplay() {
       gl.viewport(0, 0, canvas.width, canvas.height);
       displayProgram.bind();
+      gl.activeTexture(gl.TEXTURE0 + (density.read as any)[2]);
+      gl.bindTexture(gl.TEXTURE_2D, (density.read as any)[0]);
       gl.uniform1i(displayProgram.uniforms.uTexture, (density.read as any)[2]);
       blit(null);
     }
