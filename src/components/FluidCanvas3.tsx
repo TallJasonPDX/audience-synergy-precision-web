@@ -599,32 +599,52 @@ function splat(x: number, y: number, dx: number, dy: number, color: [number, num
     }
 
 // ======= Interaction =======
+let hovering = false;
+let isDown = false;
+let lastX = 0;
+let lastY = 0;
+
+const getLocalPos = (evt: MouseEvent | Touch) => {
+  const rect = canvas.getBoundingClientRect();
+  return { x: ('clientX' in evt ? evt.clientX : (evt as any).pageX) - rect.left, y: ('clientY' in evt ? evt.clientY : (evt as any).pageY) - rect.top };
+};
+
+const onMouseEnter = (e: MouseEvent) => {
+  hovering = true;
+  const { x, y } = getLocalPos(e);
+  lastX = x; lastY = y;
+  dbg("mouseenter", { x, y });
+};
+
+const onMouseLeave = () => {
+  hovering = false;
+  isDown = false;
+  dbg("mouseleave");
+};
+
 const onMouseDown = (e: MouseEvent) => {
-  (e.currentTarget as any)
-  const target = e.target as HTMLCanvasElement;
-  const rect = target.getBoundingClientRect();
-  (window as any)._mouseDown = true;
-  (window as any)._lastX = e.clientX - rect.left;
-  (window as any)._lastY = e.clientY - rect.top;
-  dbg("mousedown", { x: (window as any)._lastX, y: (window as any)._lastY });
+  isDown = true;
+  const { x, y } = getLocalPos(e);
+  lastX = x; lastY = y;
+  dbg("mousedown", { x, y });
 };
 
 const onMouseMove = (e: MouseEvent) => {
-  if (!(window as any)._mouseDown) return;
-  const target = e.target as HTMLCanvasElement;
-  const rect = target.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  const dx = (x - (window as any)._lastX) * 5.0;
-  const dy = (y - (window as any)._lastY) * 5.0;
-  (window as any)._lastX = x;
-  (window as any)._lastY = y;
-  dbg("mousemove -> splat", { x, y, dx, dy });
-  splat(x, y, dx, dy, [0.9, 0.7, 1.2]);
+  if (!hovering) return;
+  const { x, y } = getLocalPos(e);
+  let dx = x - lastX;
+  let dy = y - lastY;
+  lastX = x; lastY = y;
+  // Stronger when dragging, softer on hover
+  const scale = isDown ? 5.0 : 1.5;
+  dx *= scale; dy *= scale;
+  const tag = isDown ? "mousemove drag -> splat" : "mousemove hover -> splat";
+  dbg(tag, { x, y, dx, dy });
+  splat(x, y, dx, dy, isDown ? [0.9, 0.7, 1.2] : [0.6, 0.8, 1.0]);
 };
 
 const onMouseUp = () => {
-  (window as any)._mouseDown = false;
+  isDown = false;
   dbg("mouseup");
 };
 
@@ -632,35 +652,36 @@ const onTouchStart = (e: TouchEvent) => {
   e.preventDefault();
   const t = e.targetTouches[0];
   if (!t) return;
-  (window as any)._mouseDown = true;
-  (window as any)._lastX = t.pageX;
-  (window as any)._lastY = t.pageY;
-  dbg("touchstart", { x: (window as any)._lastX, y: (window as any)._lastY });
+  isDown = true;
+  const rect = canvas.getBoundingClientRect();
+  lastX = t.pageX - rect.left;
+  lastY = t.pageY - rect.top;
+  dbg("touchstart", { x: lastX, y: lastY });
 };
 
 const onTouchMove = (e: TouchEvent) => {
   e.preventDefault();
   const t = e.targetTouches[0];
   if (!t) return;
-  const x = t.pageX;
-  const y = t.pageY;
-  const dx = (x - (window as any)._lastX) * 10.0;
-  const dy = (y - (window as any)._lastY) * 10.0;
-  (window as any)._lastX = x;
-  (window as any)._lastY = y;
-  // Map page coords -> canvas coords
   const rect = canvas.getBoundingClientRect();
-  dbg("touchmove -> splat", { x: x - rect.left, y: y - rect.top, dx, dy });
-  splat(x - rect.left, y - rect.top, dx, dy, [0.7, 0.8, 1.1]);
+  const x = t.pageX - rect.left;
+  const y = t.pageY - rect.top;
+  let dx = (x - lastX) * 2.0;
+  let dy = (y - lastY) * 2.0;
+  lastX = x; lastY = y;
+  dbg("touchmove -> splat", { x, y, dx, dy });
+  splat(x, y, dx, dy, [0.7, 0.8, 1.1]);
 };
 
-    // Attach listeners
-    canvas.addEventListener("mousedown", onMouseDown as any, false);
-    window.addEventListener("mousemove", onMouseMove as any, false);
-    window.addEventListener("mouseup", onMouseUp as any, false);
-    canvas.addEventListener("touchstart", onTouchStart as any, { passive: false } as any);
-    window.addEventListener("touchmove", onTouchMove as any, { passive: false } as any);
-    window.addEventListener("touchend", onMouseUp as any, false);
+// Attach listeners
+canvas.addEventListener("mouseenter", onMouseEnter as any, false);
+canvas.addEventListener("mouseleave", onMouseLeave as any, false);
+canvas.addEventListener("mousedown", onMouseDown as any, false);
+canvas.addEventListener("mousemove", onMouseMove as any, false);
+canvas.addEventListener("mouseup", onMouseUp as any, false);
+canvas.addEventListener("touchstart", onTouchStart as any, { passive: false } as any);
+canvas.addEventListener("touchmove", onTouchMove as any, { passive: false } as any);
+window.addEventListener("touchend", onMouseUp as any, false);
 
     // ======= Resize handling =======
 const resizeObserver = new ResizeObserver(() => {
@@ -709,23 +730,25 @@ rafRef.current = requestAnimationFrame(frame);
       startLoopWhenReady();
     }
 
-    // ======= Cleanup =======
-    return () => {
-      cancelAnimationFrame(rafRef.current);
-      resizeObserver.disconnect();
-      canvas.removeEventListener("mousedown", onMouseDown as any);
-      window.removeEventListener("mousemove", onMouseMove as any);
-      window.removeEventListener("mouseup", onMouseUp as any);
-      canvas.removeEventListener("touchstart", onTouchStart as any);
-      window.removeEventListener("touchmove", onTouchMove as any);
-      window.removeEventListener("touchend", onMouseUp as any);
-      disposeFramebuffers();
-      try {
-        const lose = gl.getExtension("WEBGL_lose_context") as any;
-        lose?.loseContext?.();
-      } catch {}
-      startedRef.current = false;
-    };
+// ======= Cleanup =======
+return () => {
+  cancelAnimationFrame(rafRef.current);
+  resizeObserver.disconnect();
+  canvas.removeEventListener("mouseenter", onMouseEnter as any);
+  canvas.removeEventListener("mouseleave", onMouseLeave as any);
+  canvas.removeEventListener("mousedown", onMouseDown as any);
+  canvas.removeEventListener("mousemove", onMouseMove as any);
+  canvas.removeEventListener("mouseup", onMouseUp as any);
+  canvas.removeEventListener("touchstart", onTouchStart as any);
+  canvas.removeEventListener("touchmove", onTouchMove as any);
+  window.removeEventListener("touchend", onMouseUp as any);
+  disposeFramebuffers();
+  try {
+    const lose = gl.getExtension("WEBGL_lose_context") as any;
+    lose?.loseContext?.();
+  } catch {}
+  startedRef.current = false;
+};
   }, []);
 
   return (
