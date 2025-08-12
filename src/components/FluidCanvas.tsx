@@ -186,7 +186,7 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      // @ts-expect-error: internalFormat is WebGL2 when available
+      // @ts-ignore - internalFormat is WebGL2 when available
       gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, 4, 4, 0, format, type, null);
       const err = gl.getError();
       gl.deleteTexture(tex);
@@ -203,7 +203,7 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, param);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      // @ts-expect-error: internalFormat is WebGL2 when available
+      // @ts-ignore - internalFormat is WebGL2 when available
       gl.texImage2D(gl.TEXTURE_2D, 0, format.internalFormat, w, h, 0, format.format, ext.halfFloatTexType, null);
 
       const fbo = gl.createFramebuffer();
@@ -262,8 +262,7 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
       gl.compileShader(shader);
       if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
         // eslint-disable-next-line no-console
-        console.error("Shader compile error:
-", gl.getShaderInfoLog(shader));
+        console.error("Shader compile error:\n", gl.getShaderInfoLog(shader));
         gl.deleteShader(shader);
         throw new Error("Shader compile failed");
       }
