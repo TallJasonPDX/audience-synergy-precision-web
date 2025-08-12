@@ -83,6 +83,11 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
 
     const { gl, ext } = getWebGLContext(canvas);
 
+    const isWebGL2Ctx = typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext;
+    const formatRGBA = ext.formatRGBA ?? { internalFormat: isWebGL2Ctx ? gl.RGBA16F : gl.RGBA, format: gl.RGBA };
+    const formatRG = ext.formatRG ?? formatRGBA;
+    const formatR = ext.formatR ?? formatRGBA;
+
     function pointerPrototype(this: any) {
       this.id = -1;
       this.x = 0;
@@ -498,7 +503,7 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
         0,
         textureWidth,
         textureHeight,
-        ext.formatRGBA,
+        formatRGBA,
         ext.halfFloatTexType,
         ext.supportLinearFiltering ? gl.LINEAR : gl.NEAREST
       );
@@ -506,13 +511,13 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
         2,
         textureWidth,
         textureHeight,
-        ext.formatRG,
+        formatRG,
         ext.halfFloatTexType,
         ext.supportLinearFiltering ? gl.LINEAR : gl.NEAREST
       );
-      const divergence = createFBO(4, textureWidth, textureHeight, ext.formatR, ext.halfFloatTexType, gl.NEAREST);
-      const curl = createFBO(5, textureWidth, textureHeight, ext.formatR, ext.halfFloatTexType, gl.NEAREST);
-      const pressure = createDoubleFBO(6, textureWidth, textureHeight, ext.formatR, ext.halfFloatTexType, gl.NEAREST);
+      const divergence = createFBO(4, textureWidth, textureHeight, formatR, ext.halfFloatTexType, gl.NEAREST);
+      const curl = createFBO(5, textureWidth, textureHeight, formatR, ext.halfFloatTexType, gl.NEAREST);
+      const pressure = createDoubleFBO(6, textureWidth, textureHeight, formatR, ext.halfFloatTexType, gl.NEAREST);
 
       return {
         density,
@@ -711,7 +716,7 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
           pointer.color = [Math.random() + 0.2, Math.random() + 0.2, Math.random() + 0.2];
         }
       },
-      false
+      { passive: false }
     );
 
     window.addEventListener(
@@ -728,7 +733,7 @@ export default function FluidCanvas({ width = "100%", height = "100%" }: FluidCa
           pointer.y = touches[i].pageY;
         }
       },
-      false
+      { passive: false }
     );
 
     canvas.addEventListener("mousemove", () => {
