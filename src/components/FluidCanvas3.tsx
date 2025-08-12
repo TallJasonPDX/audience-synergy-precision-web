@@ -13,6 +13,8 @@ interface FluidCanvasProps {
   width?: string;
   height?: string;
   showMask?: boolean;
+  debug?: boolean;
+  debugFrequency?: number;
 }
 
 type GL = WebGL2RenderingContext | WebGLRenderingContext;
@@ -42,7 +44,7 @@ interface Extensions {
   supportLinearFiltering: boolean;
 }
 
-export default function FluidCanvas({ width = "100%", height = "100%", showMask = false }: FluidCanvasProps) {
+export default function FluidCanvas({ width = "100%", height = "100%", showMask = false, debug = false, debugFrequency = 60 }: FluidCanvasProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -50,13 +52,17 @@ export default function FluidCanvas({ width = "100%", height = "100%", showMask 
   const startedRef = useRef<boolean>(false);
   const rafRef = useRef<number>(0);
 
-  useEffect(() => {
-    if (startedRef.current) return; // StrictMode double-mount guard
-    startedRef.current = true;
+useEffect(() => {
+  if (startedRef.current) return; // StrictMode double-mount guard
+  startedRef.current = true;
 
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
+  const dbg = (...args: any[]) => { if (debug) console.log("[Fluid3]", ...args); };
+  const dbgw = (...args: any[]) => { if (debug) console.warn("[Fluid3]", ...args); };
+  const dbe = (...args: any[]) => { if (debug) console.error("[Fluid3]", ...args); };
+
+  const canvas = canvasRef.current;
+  const container = containerRef.current;
+  if (!canvas || !container) return;
 
     // === Size helpers ===
     let lastW = 0,
@@ -76,14 +82,16 @@ export default function FluidCanvas({ width = "100%", height = "100%", showMask 
       return true;
     };
 
-    // Initial sizing; if zero, wait a tick
-    const sized = updateCanvasSize();
+// Initial sizing; if zero, wait a tick
+const sized = updateCanvasSize();
+if (debug) dbg("mount -> initial size", { w: lastW, h: lastH, sized });
 
-    // Create WebGL context
-    const ctx = getWebGLContext(canvas);
-    const gl = ctx.gl;
-    if (!gl) return;
-    const { ext, isWebGL2 } = ctx;
+// Create WebGL context
+const ctx = getWebGLContext(canvas);
+const gl = ctx.gl;
+if (!gl) { dbgw("WebGL context not available"); return; }
+const { ext, isWebGL2 } = ctx;
+dbg("WebGL", { isWebGL2, halfFloatType: ext.halfFloatTexType, linearFiltering: ext.supportLinearFiltering, formats: { rgba: ext.formatRGBA, rg: ext.formatRG, r: ext.formatR } });
 
     // ======= State & Config =======
     const config = {
@@ -245,17 +253,21 @@ function getWebGLContext(canvas: HTMLCanvasElement): { gl: GL | null; ext: Exten
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, param);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      // @ts-ignore - internalFormat is WebGL2 when available
-      gl.texImage2D(gl.TEXTURE_2D, 0, format.internalFormat, w, h, 0, format.format, ext.halfFloatTexType, null);
+// @ts-ignore - internalFormat is WebGL2 when available
+gl.texImage2D(gl.TEXTURE_2D, 0, format.internalFormat, w, h, 0, format.format, type, null);
 
-      const fbo = gl.createFramebuffer();
-      if (!fbo) throw new Error("Failed to create framebuffer");
-      gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
-      gl.viewport(0, 0, w, h);
-      gl.clear(gl.COLOR_BUFFER_BIT);
+const fbo = gl.createFramebuffer();
+if (!fbo) throw new Error("Failed to create framebuffer");
+gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+gl.viewport(0, 0, w, h);
+const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+if (status !== gl.FRAMEBUFFER_COMPLETE) {
+  dbgw && dbgw("FBO incomplete", { w, h, status, format, type });
+}
+gl.clear(gl.COLOR_BUFFER_BIT);
 
-      return { texture, fbo, w, h };
+return { texture, fbo, w, h };
     }
 
     function createDoubleFBO(w: number, h: number, format: { internalFormat: number; format: number }, type: number, param: number): DoubleFBO {
@@ -406,28 +418,30 @@ function getWebGLContext(canvas: HTMLCanvasElement): { gl: GL | null; ext: Exten
       texWidth = 2,
       texHeight = 2;
 
-    function initFramebuffers() {
-      texWidth = Math.max(2, (canvas.width >> (config.TEXTURE_DOWNSAMPLE as number)));
-      texHeight = Math.max(2, (canvas.height >> (config.TEXTURE_DOWNSAMPLE as number)));
+function initFramebuffers() {
+  texWidth = Math.max(2, (canvas.width >> (config.TEXTURE_DOWNSAMPLE as number)));
+  texHeight = Math.max(2, (canvas.height >> (config.TEXTURE_DOWNSAMPLE as number)));
+  dbg("initFramebuffers", { texWidth, texHeight });
 
-      density = createDoubleFBO(
-        texWidth,
-        texHeight,
-        ext.formatRGBA,
-        ext.halfFloatTexType,
-        ext.supportLinearFiltering ? gl.LINEAR : gl.NEAREST
-      );
-      velocity = createDoubleFBO(
-        texWidth,
-        texHeight,
-        ext.formatRG,
-        ext.halfFloatTexType,
-        ext.supportLinearFiltering ? gl.LINEAR : gl.NEAREST
-      );
-      divergence = createFBO(texWidth, texHeight, ext.formatR, ext.halfFloatTexType, gl.NEAREST);
-      curl = createFBO(texWidth, texHeight, ext.formatR, ext.halfFloatTexType, gl.NEAREST);
-      pressure = createDoubleFBO(texWidth, texHeight, ext.formatR, ext.halfFloatTexType, gl.NEAREST);
-    }
+  density = createDoubleFBO(
+    texWidth,
+    texHeight,
+    ext.formatRGBA,
+    ext.halfFloatTexType,
+    ext.supportLinearFiltering ? gl.LINEAR : gl.NEAREST
+  );
+  velocity = createDoubleFBO(
+    texWidth,
+    texHeight,
+    ext.formatRG,
+    ext.halfFloatTexType,
+    ext.supportLinearFiltering ? gl.LINEAR : gl.NEAREST
+  );
+  divergence = createFBO(texWidth, texHeight, ext.formatR, ext.halfFloatTexType, gl.NEAREST);
+  curl = createFBO(texWidth, texHeight, ext.formatR, ext.halfFloatTexType, gl.NEAREST);
+  pressure = createDoubleFBO(texWidth, texHeight, ext.formatR, ext.halfFloatTexType, gl.NEAREST);
+  dbg("FBOs ready", { density, velocity, divergence, curl, pressure });
+}
 
     function disposeFramebuffers() {
       const del = (pair: any) => {
@@ -547,29 +561,31 @@ function getWebGLContext(canvas: HTMLCanvasElement): { gl: GL | null; ext: Exten
       return (aspectRatio > 1 ? 0.00035 : 0.00035 * aspectRatio) * (config.SPLAT_RADIUS / 0.004);
     }
 
-    function splat(x: number, y: number, dx: number, dy: number, color: [number, number, number]) {
-      if (!density || !velocity) return;
-      gl.viewport(0, 0, texWidth, texHeight);
-      splatProgram.bind();
-      bindSampler(splatProgram, "uTarget", 0, velocity.read.texture);
-      const aspectRatio = canvas.width / canvas.height;
-      const uAspect = splatProgram.uniforms["aspectRatio"];
-      if (uAspect) gl.uniform1f(uAspect, aspectRatio);
-      const uPoint = splatProgram.uniforms["point"];
-      if (uPoint) gl.uniform2f(uPoint, x / canvas.width, 1.0 - y / canvas.height);
-      const uColor = splatProgram.uniforms["color"];
-      if (uColor) gl.uniform3f(uColor, dx * config.SPLAT_FORCE, dy * config.SPLAT_FORCE, 1.0);
-      const uRadius = splatProgram.uniforms["radius"];
-      if (uRadius) gl.uniform1f(uRadius, correctRadius(aspectRatio) * config.SPLAT_RADIUS);
-      blit(velocity.write.fbo);
-      velocity.swap();
+function splat(x: number, y: number, dx: number, dy: number, color: [number, number, number]) {
+  if (!density || !velocity) return;
+  gl.viewport(0, 0, texWidth, texHeight);
+  splatProgram.bind();
+  bindSampler(splatProgram, "uTarget", 0, velocity.read.texture);
+  const aspectRatio = canvas.width / canvas.height;
+  const uAspect = splatProgram.uniforms["aspectRatio"];
+  if (uAspect) gl.uniform1f(uAspect, aspectRatio);
+  const uPoint = splatProgram.uniforms["point"];
+  if (uPoint) gl.uniform2f(uPoint, x / canvas.width, 1.0 - y / canvas.height);
+  const uColor = splatProgram.uniforms["color"];
+  if (uColor) gl.uniform3f(uColor, dx * config.SPLAT_FORCE, dy * config.SPLAT_FORCE, 1.0);
+  const uRadius = splatProgram.uniforms["radius"];
+  if (uRadius) gl.uniform1f(uRadius, correctRadius(aspectRatio) * config.SPLAT_RADIUS);
+  dbg("splat velocity", { x, y, dx, dy });
+  blit(velocity.write.fbo);
+  velocity.swap();
 
-      // Density
-      bindSampler(splatProgram, "uTarget", 0, density.read.texture);
-      if (uColor) gl.uniform3f(uColor, color[0], color[1], color[2]);
-      blit(density.write.fbo);
-      density.swap();
-    }
+  // Density
+  bindSampler(splatProgram, "uTarget", 0, density.read.texture);
+  if (uColor) gl.uniform3f(uColor, color[0], color[1], color[2]);
+  dbg("splat density", { color });
+  blit(density.write.fbo);
+  density.swap();
+}
 
     function multipleSplats(n: number) {
       for (let i = 0; i < n; i++) {
@@ -582,56 +598,61 @@ function getWebGLContext(canvas: HTMLCanvasElement): { gl: GL | null; ext: Exten
       }
     }
 
-    // ======= Interaction =======
-    const onMouseDown = (e: MouseEvent) => {
-      (e.currentTarget as any) // TS appeasement for offsetX/Y on canvas
-      const target = e.target as HTMLCanvasElement;
-      const rect = target.getBoundingClientRect();
-      (window as any)._mouseDown = true;
-      (window as any)._lastX = e.clientX - rect.left;
-      (window as any)._lastY = e.clientY - rect.top;
-    };
+// ======= Interaction =======
+const onMouseDown = (e: MouseEvent) => {
+  (e.currentTarget as any)
+  const target = e.target as HTMLCanvasElement;
+  const rect = target.getBoundingClientRect();
+  (window as any)._mouseDown = true;
+  (window as any)._lastX = e.clientX - rect.left;
+  (window as any)._lastY = e.clientY - rect.top;
+  dbg("mousedown", { x: (window as any)._lastX, y: (window as any)._lastY });
+};
 
-    const onMouseMove = (e: MouseEvent) => {
-      if (!(window as any)._mouseDown) return;
-      const target = e.target as HTMLCanvasElement;
-      const rect = target.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const dx = (x - (window as any)._lastX) * 5.0;
-      const dy = (y - (window as any)._lastY) * 5.0;
-      (window as any)._lastX = x;
-      (window as any)._lastY = y;
-      splat(x, y, dx, dy, [0.9, 0.7, 1.2]);
-    };
+const onMouseMove = (e: MouseEvent) => {
+  if (!(window as any)._mouseDown) return;
+  const target = e.target as HTMLCanvasElement;
+  const rect = target.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const dx = (x - (window as any)._lastX) * 5.0;
+  const dy = (y - (window as any)._lastY) * 5.0;
+  (window as any)._lastX = x;
+  (window as any)._lastY = y;
+  dbg("mousemove -> splat", { x, y, dx, dy });
+  splat(x, y, dx, dy, [0.9, 0.7, 1.2]);
+};
 
-    const onMouseUp = () => {
-      (window as any)._mouseDown = false;
-    };
+const onMouseUp = () => {
+  (window as any)._mouseDown = false;
+  dbg("mouseup");
+};
 
-    const onTouchStart = (e: TouchEvent) => {
-      e.preventDefault();
-      const t = e.targetTouches[0];
-      if (!t) return;
-      (window as any)._mouseDown = true;
-      (window as any)._lastX = t.pageX;
-      (window as any)._lastY = t.pageY;
-    };
+const onTouchStart = (e: TouchEvent) => {
+  e.preventDefault();
+  const t = e.targetTouches[0];
+  if (!t) return;
+  (window as any)._mouseDown = true;
+  (window as any)._lastX = t.pageX;
+  (window as any)._lastY = t.pageY;
+  dbg("touchstart", { x: (window as any)._lastX, y: (window as any)._lastY });
+};
 
-    const onTouchMove = (e: TouchEvent) => {
-      e.preventDefault();
-      const t = e.targetTouches[0];
-      if (!t) return;
-      const x = t.pageX;
-      const y = t.pageY;
-      const dx = (x - (window as any)._lastX) * 10.0;
-      const dy = (y - (window as any)._lastY) * 10.0;
-      (window as any)._lastX = x;
-      (window as any)._lastY = y;
-      // Map page coords -> canvas coords
-      const rect = canvas.getBoundingClientRect();
-      splat(x - rect.left, y - rect.top, dx, dy, [0.7, 0.8, 1.1]);
-    };
+const onTouchMove = (e: TouchEvent) => {
+  e.preventDefault();
+  const t = e.targetTouches[0];
+  if (!t) return;
+  const x = t.pageX;
+  const y = t.pageY;
+  const dx = (x - (window as any)._lastX) * 10.0;
+  const dy = (y - (window as any)._lastY) * 10.0;
+  (window as any)._lastX = x;
+  (window as any)._lastY = y;
+  // Map page coords -> canvas coords
+  const rect = canvas.getBoundingClientRect();
+  dbg("touchmove -> splat", { x: x - rect.left, y: y - rect.top, dx, dy });
+  splat(x - rect.left, y - rect.top, dx, dy, [0.7, 0.8, 1.1]);
+};
 
     // Attach listeners
     canvas.addEventListener("mousedown", onMouseDown as any, false);
@@ -642,26 +663,30 @@ function getWebGLContext(canvas: HTMLCanvasElement): { gl: GL | null; ext: Exten
     window.addEventListener("touchend", onMouseUp as any, false);
 
     // ======= Resize handling =======
-    const resizeObserver = new ResizeObserver(() => {
-      const changed = updateCanvasSize();
-      if (!changed) return;
-      if (canvas.width < 2 || canvas.height < 2) return;
-      disposeFramebuffers();
-      initFramebuffers();
-    });
+const resizeObserver = new ResizeObserver(() => {
+  const changed = updateCanvasSize();
+  if (!changed) return;
+  if (canvas.width < 2 || canvas.height < 2) return;
+  dbgw("resize -> rebuilding FBOs", { w: canvas.width, h: canvas.height });
+  disposeFramebuffers();
+  initFramebuffers();
+});
     resizeObserver.observe(container);
 
     // ======= Main loop =======
-    let lastTime = performance.now();
-    function frame(now: number) {
-      const dt = Math.min((now - lastTime) / 1000, 0.016);
-      lastTime = now;
-      if (!config.PAUSED && canvas.width >= 2 && canvas.height >= 2 && density && velocity) {
-        step(dt);
-      }
-      draw();
-      rafRef.current = requestAnimationFrame(frame);
-    }
+let lastTime = performance.now();
+let frameNo = 0;
+function frame(now: number) {
+  const dt = Math.min((now - lastTime) / 1000, 0.016);
+  lastTime = now;
+  frameNo++;
+  if (!config.PAUSED && canvas.width >= 2 && canvas.height >= 2 && density && velocity) {
+    step(dt);
+  }
+  if (debug && frameNo % debugFrequency === 0) dbg("frame", { frameNo, dt, tex: { w: texWidth, h: texHeight } });
+  draw();
+  rafRef.current = requestAnimationFrame(frame);
+}
 
     // Kick off once we have a real size & buffers
     const startLoopWhenReady = () => {
@@ -669,8 +694,9 @@ function getWebGLContext(canvas: HTMLCanvasElement): { gl: GL | null; ext: Exten
         rafRef.current = requestAnimationFrame(startLoopWhenReady);
         return;
       }
-      multipleSplats(10);
-      rafRef.current = requestAnimationFrame(frame);
+multipleSplats(10);
+dbg("seeded initial splats");
+rafRef.current = requestAnimationFrame(frame);
     };
     if (!sized) {
       requestAnimationFrame(() => {

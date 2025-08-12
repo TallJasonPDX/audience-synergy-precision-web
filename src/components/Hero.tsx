@@ -75,11 +75,11 @@ const Hero = () => {
         </div>
 
         {/* Fluid Canvas section */}
-        <div className="mt-16">
-          <div className="w-full h-[400px] overflow-hidden rounded-xl">
-            <FluidCanvas3 width="100%" height="400px" />
-          </div>
-        </div>
+<div className="mt-16">
+  <div className="w-full h-[400px] overflow-hidden rounded-xl">
+    <FluidCanvas3 width="100%" height="400px" debug debugFrequency={30} />
+  </div>
+</div>
 
       </div>
     </section>
